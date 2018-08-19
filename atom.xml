@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-08-19T05:55:49.435Z</updated>
+  <updated>2018-08-19T09:10:32.680Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,30 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>hexo高级特性</title>
+    <link href="http://yoursite.com/2018/08/19/cool/"/>
+    <id>http://yoursite.com/2018/08/19/cool/</id>
+    <published>2018-08-19T08:35:51.000Z</published>
+    <updated>2018-08-19T09:10:32.680Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="网易云"><a href="#网易云" class="headerlink" title="网易云"></a>网易云</h1><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="450" src="//music.163.com/outchain/player?type=0&id=2349870258&auto=1&height=430"></iframe>]]></content>
+    
+    <summary type="html">
+    
+      测试hexo系统新特性
+    
+    </summary>
+    
+      <category term="hexo" scheme="http://yoursite.com/categories/hexo/"/>
+    
+    
+      <category term="hexo" scheme="http://yoursite.com/tags/hexo/"/>
+    
+      <category term="新特性" scheme="http://yoursite.com/tags/%E6%96%B0%E7%89%B9%E6%80%A7/"/>
+    
+  </entry>
   
   <entry>
     <title>mysql</title>
