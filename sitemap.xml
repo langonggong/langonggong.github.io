@@ -2,9 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://yoursite.com/2018/08/19/java%E8%99%9A%E6%8B%9F%E6%9C%BA/</loc>
+    
+    <lastmod>2018-08-19T10:24:51.685Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://yoursite.com/2018/08/19/cool/</loc>
     
-    <lastmod>2018-08-19T09:10:32.680Z</lastmod>
+    <lastmod>2018-08-19T10:19:39.176Z</lastmod>
     
   </url>
   
@@ -40,13 +47,6 @@
     <loc>http://yoursite.com/2018/08/19/mysql%E5%88%86%E5%BA%93%E3%80%81%E5%88%86%E5%8C%BA%E3%80%81%E5%88%86%E8%A1%A8%E3%80%81%E5%88%86%E7%89%87/</loc>
     
     <lastmod>2018-08-19T01:27:49.901Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yoursite.com/2018/08/19/java%E8%99%9A%E6%8B%9F%E6%9C%BA/</loc>
-    
-    <lastmod>2018-08-18T23:20:28.625Z</lastmod>
     
   </url>
   
