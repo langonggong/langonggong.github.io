@@ -4,7 +4,21 @@
   <url>
     <loc>http://yoursite.com/2018/09/23/synchronized/</loc>
     
-    <lastmod>2018-09-24T13:38:57.221Z</lastmod>
+    <lastmod>2018-09-25T08:02:58.589Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2018/09/25/BlockingQueue/</loc>
+    
+    <lastmod>2018-09-25T08:00:54.921Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/2018/08/19/java-concurrency/</loc>
+    
+    <lastmod>2018-09-25T04:14:23.322Z</lastmod>
     
   </url>
   
@@ -152,13 +166,6 @@
     <loc>http://yoursite.com/2018/08/19/springcloud/</loc>
     
     <lastmod>2018-08-19T05:46:13.326Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yoursite.com/2018/08/19/java-concurrency/</loc>
-    
-    <lastmod>2018-08-19T05:07:22.078Z</lastmod>
     
   </url>
   
