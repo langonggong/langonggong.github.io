@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="算法" />
+  <meta name="keywords" content="tomcat" />
 
 
 
@@ -81,18 +81,18 @@
 
 
 
-<meta name="description" content="二分后递归调用自身，然后对这两部分处理后的结果进行排序">
-<meta name="keywords" content="算法">
+<meta name="description" content="http">
+<meta name="keywords" content="tomcat">
 <meta property="og:type" content="article">
-<meta property="og:title" content="归并排序">
-<meta property="og:url" content="http://langonggong.com/2018/09/03/归并排序/index.html">
+<meta property="og:title" content="http">
+<meta property="og:url" content="http://langonggong.com/2018/10/14/http/index.html">
 <meta property="og:site_name" content="武汉旭神">
-<meta property="og:description" content="二分后递归调用自身，然后对这两部分处理后的结果进行排序">
+<meta property="og:description" content="http">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-09-28T11:30:35.548Z">
+<meta property="og:updated_time" content="2018-10-14T07:34:56.598Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="归并排序">
-<meta name="twitter:description" content="二分后递归调用自身，然后对这两部分处理后的结果进行排序">
+<meta name="twitter:title" content="http">
+<meta name="twitter:description" content="http">
 
 
 
@@ -122,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://langonggong.com/2018/09/03/归并排序/"/>
+  <link rel="canonical" href="http://langonggong.com/2018/10/14/http/"/>
 
 
 
 
 
-  <title>归并排序 | 武汉旭神</title>
+  <title>http | 武汉旭神</title>
   
 
 
@@ -265,7 +265,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://langonggong.com/2018/09/03/归并排序/">
+    <link itemprop="mainEntityOfPage" href="http://langonggong.com/2018/10/14/http/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="lanxu">
@@ -282,7 +282,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">归并排序</h1>
+          <h1 class="post-title" itemprop="name headline">http</h1>
         
 
         <div class="post-meta">
@@ -294,8 +294,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-03T21:24:32+08:00">
-                2018-09-03
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-10-14T15:33:17+08:00">
+                2018-10-14
               </time>
             
 
@@ -317,19 +317,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/算法/" itemprop="url" rel="index">
-                    <span itemprop="name">算法</span>
-                  </a>
-                </span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/算法/排序/" itemprop="url" rel="index">
-                    <span itemprop="name">排序</span>
+                  <a href="/categories/计算机网络/" itemprop="url" rel="index">
+                    <span itemprop="name">计算机网络</span>
                   </a>
                 </span>
 
@@ -364,7 +353,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  194
+                  9
                 </span>
               
 
@@ -388,7 +377,7 @@
 
           
               <div class="post-description">
-                  二分后递归调用自身，然后对这两部分处理后的结果进行排序
+                  http
               </div>
           
 
@@ -405,8 +394,7 @@
       
 
       
-        <p>二分后递归调用自身，然后对这两部分处理后的结果进行排序</p>
-<figure class="highlight vbscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> MergeSort &#123;</span><br><span class="line">  <span class="keyword">public</span> <span class="built_in">int</span>[] mergeSort(<span class="built_in">int</span>[] arr) &#123;</span><br><span class="line">    <span class="keyword">if</span> (arr == <span class="literal">null</span> || arr.length &lt; <span class="number">2</span>) &#123;</span><br><span class="line">      return arr;</span><br><span class="line">    &#125;</span><br><span class="line">    divide(arr, <span class="number">0</span>, arr.length - <span class="number">1</span>);</span><br><span class="line">    return arr;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> void divide(<span class="built_in">int</span>[] arr, <span class="built_in">int</span> <span class="built_in">left</span>, <span class="built_in">int</span> <span class="built_in">right</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">left</span> &gt;= <span class="built_in">right</span>) &#123;</span><br><span class="line">      return;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">int</span> <span class="built_in">mid</span> = (<span class="built_in">left</span> + <span class="built_in">right</span>) / <span class="number">2</span>;</span><br><span class="line">    divide(arr, <span class="built_in">left</span>, <span class="built_in">mid</span>);</span><br><span class="line">    divide(arr, <span class="built_in">mid</span> + <span class="number">1</span>, <span class="built_in">right</span>);</span><br><span class="line">    merge(arr, <span class="built_in">left</span>, <span class="built_in">mid</span>, <span class="built_in">right</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> void merge(<span class="built_in">int</span>[] arr, <span class="built_in">int</span> <span class="built_in">left</span>, <span class="built_in">int</span> <span class="built_in">mid</span>, <span class="built_in">int</span> <span class="built_in">right</span>) &#123;</span><br><span class="line">    <span class="built_in">int</span>[] result = <span class="keyword">new</span> <span class="built_in">int</span>[<span class="built_in">right</span> - <span class="built_in">left</span> + <span class="number">1</span>];</span><br><span class="line">    <span class="built_in">int</span> i = <span class="built_in">left</span>, j = <span class="built_in">mid</span> + <span class="number">1</span>, index = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span> (i &lt;= <span class="built_in">mid</span> &amp;&amp; j &lt;= <span class="built_in">right</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (arr[i] &lt; arr[j]) &#123;</span><br><span class="line">        result[index++] = arr[i++];</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        result[index++] = arr[j++];</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> (i &lt;= <span class="built_in">mid</span>) &#123;</span><br><span class="line">      result[index++] = arr[i++];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> (j &lt;= <span class="built_in">right</span>) &#123;</span><br><span class="line">      result[index++] = arr[j++];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="built_in">int</span> k=<span class="number">0</span>;k&lt;result.length;k++) &#123;</span><br><span class="line">      arr[<span class="built_in">left</span> + k] = result[k];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <h1 id="长连接"><a href="#长连接" class="headerlink" title="长连接"></a>长连接</h1><h1 id="短连接"><a href="#短连接" class="headerlink" title="短连接"></a>短连接</h1><h1 id="轮询"><a href="#轮询" class="headerlink" title="轮询"></a>轮询</h1><h1 id="WebSocket"><a href="#WebSocket" class="headerlink" title="WebSocket"></a>WebSocket</h1>
       
     </div>
     
@@ -452,9 +440,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/算法/" rel="tag"><i class="fa fa-tag"></i> 算法</a>
-          
-            <a href="/tags/排序/" rel="tag"><i class="fa fa-tag"></i> 排序</a>
+            <a href="/tags/http/" rel="tag"><i class="fa fa-tag"></i> http</a>
           
         </div>
       
@@ -467,8 +453,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/09/02/插入排序/" rel="next" title="插入排序">
-                <i class="fa fa-chevron-left"></i> 插入排序
+              <a href="/2018/10/13/tomcat/" rel="next" title="tomcat">
+                <i class="fa fa-chevron-left"></i> tomcat
               </a>
             
           </div>
@@ -476,10 +462,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/09/03/快速排序/" rel="prev" title="快速排序">
-                快速排序 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -536,8 +518,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -620,6 +611,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#长连接"><span class="nav-number">1.</span> <span class="nav-text">长连接</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#短连接"><span class="nav-number">2.</span> <span class="nav-text">短连接</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#轮询"><span class="nav-number">3.</span> <span class="nav-text">轮询</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#WebSocket"><span class="nav-number">4.</span> <span class="nav-text">WebSocket</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
