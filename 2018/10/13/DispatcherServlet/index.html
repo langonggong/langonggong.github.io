@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="计算机网络" />
+  <meta name="keywords" content="DispatcherServlet" />
 
 
 
@@ -81,18 +81,20 @@
 
 
 
-<meta name="description" content="CND加速">
-<meta name="keywords" content="计算机网络">
+<meta name="description" content="DispatcherServlet原理讲解">
+<meta name="keywords" content="DispatcherServlet">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CND加速">
-<meta property="og:url" content="http://langonggong.com/2018/10/05/CND加速/index.html">
+<meta property="og:title" content="DispatcherServlet">
+<meta property="og:url" content="http://langonggong.com/2018/10/13/DispatcherServlet/index.html">
 <meta property="og:site_name" content="武汉旭神">
-<meta property="og:description" content="CND加速">
+<meta property="og:description" content="DispatcherServlet原理讲解">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-10-05T14:40:23.943Z">
+<meta property="og:image" content="http://langonggong.com/images/DispatcherServlet.png">
+<meta property="og:updated_time" content="2018-10-18T09:47:20.753Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="CND加速">
-<meta name="twitter:description" content="CND加速">
+<meta name="twitter:title" content="DispatcherServlet">
+<meta name="twitter:description" content="DispatcherServlet原理讲解">
+<meta name="twitter:image" content="http://langonggong.com/images/DispatcherServlet.png">
 
 
 
@@ -122,13 +124,13 @@
 
 
 
-  <link rel="canonical" href="http://langonggong.com/2018/10/05/CND加速/"/>
+  <link rel="canonical" href="http://langonggong.com/2018/10/13/DispatcherServlet/"/>
 
 
 
 
 
-  <title>CND加速 | 武汉旭神</title>
+  <title>DispatcherServlet | 武汉旭神</title>
   
 
 
@@ -265,7 +267,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://langonggong.com/2018/10/05/CND加速/">
+    <link itemprop="mainEntityOfPage" href="http://langonggong.com/2018/10/13/DispatcherServlet/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="lanxu">
@@ -282,7 +284,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">CND加速</h1>
+          <h1 class="post-title" itemprop="name headline">DispatcherServlet</h1>
         
 
         <div class="post-meta">
@@ -294,8 +296,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-10-05T22:01:53+08:00">
-                2018-10-05
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-10-13T15:11:17+08:00">
+                2018-10-13
               </time>
             
 
@@ -317,19 +319,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/计算机网络/" itemprop="url" rel="index">
-                    <span itemprop="name">计算机网络</span>
-                  </a>
-                </span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/计算机网络/CDN/" itemprop="url" rel="index">
-                    <span itemprop="name">CDN</span>
+                  <a href="/categories/spring/" itemprop="url" rel="index">
+                    <span itemprop="name">spring</span>
                   </a>
                 </span>
 
@@ -364,7 +355,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  454
+                  0
                 </span>
               
 
@@ -380,7 +371,7 @@
                   <span class="post-meta-item-text">Reading time &asymp;</span>
                 
                 <span title="Reading time">
-                  2
+                  1
                 </span>
               
             </div>
@@ -388,7 +379,7 @@
 
           
               <div class="post-description">
-                  CND加速
+                  DispatcherServlet原理讲解
               </div>
           
 
@@ -405,14 +396,7 @@
       
 
       
-        <h1 id="网页加速"><a href="#网页加速" class="headerlink" title="网页加速"></a>网页加速</h1><p>CDN服务商通过将网页内容缓存到各个CND节点上，并将用户请求调度到最优节点上来获取所需的内容，从而加速页面相应速度、减轻源站点的访问负担</p>
-<h1 id="流媒体加速"><a href="#流媒体加速" class="headerlink" title="流媒体加速"></a>流媒体加速</h1><p>将流媒体内容推送到离用户最近的POP点，使得用户能够从网络边缘获取内容，从而提高视频传输质量，缩短访问时间，节省骨干网络流量，避免单一中心的服务器瓶颈问题</p>
-<h1 id="文件传输加速"><a href="#文件传输加速" class="headerlink" title="文件传输加速"></a>文件传输加速</h1><p>使用CND分布式POP点提供下载服务，网站可以将大量文件下载的性能压力和带宽压力交给CND来分担，提高用户的下载速度</p>
-<h1 id="应用协议加速"><a href="#应用协议加速" class="headerlink" title="应用协议加速"></a>应用协议加速</h1><p>不针对特定内容类型进行加速，而是通过对TCP/IP等传输协议优化，或对SSL协议加速</p>
-<h2 id="广域网应用加速"><a href="#广域网应用加速" class="headerlink" title="广域网应用加速"></a>广域网应用加速</h2><p>目的是“让广域网像局域网一样”</p>
-<p>将分布式的IT基础设施如文件服务器、邮件服务器、网络附加存储（NAS）和远程办公室备份系统集中起来，整合到统一的数据中心</p>
-<h2 id="SSL应用加速"><a href="#SSL应用加速" class="headerlink" title="SSL应用加速"></a>SSL应用加速</h2><p>由CDN的专用SSL加速硬件来完成加密解密运算工作，通过认证之后方可建立起数据传输通道。用户的源站点只需信任有限的CDN cache，而无需面对海量用户，从而减轻了繁重的运算和认证压力</p>
-<h2 id="网页压缩"><a href="#网页压缩" class="headerlink" title="网页压缩"></a>网页压缩</h2><p>可以在服务器端对网页数据进行压缩，将压缩后的文件提供给用户，在浏览器端解压显示。<br>CDN为网站提供网页内容的压缩传输，从而加快内容传输速度</p>
+        <p><img src="/images/DispatcherServlet.png"></p>
 
       
     </div>
@@ -459,9 +443,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/计算机网络/" rel="tag"><i class="fa fa-tag"></i> 计算机网络</a>
+            <a href="/tags/DispatcherServlet/" rel="tag"><i class="fa fa-tag"></i> DispatcherServlet</a>
           
-            <a href="/tags/CDN/" rel="tag"><i class="fa fa-tag"></i> CDN</a>
+            <a href="/tags/SpringMvc/" rel="tag"><i class="fa fa-tag"></i> SpringMvc</a>
           
         </div>
       
@@ -474,8 +458,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/10/05/负载均衡/" rel="next" title="负载均衡">
-                <i class="fa fa-chevron-left"></i> 负载均衡
+              <a href="/2018/10/09/代理/" rel="next" title="代理">
+                <i class="fa fa-chevron-left"></i> 代理
               </a>
             
           </div>
@@ -484,8 +468,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/10/09/代理/" rel="prev" title="代理">
-                代理 <i class="fa fa-chevron-right"></i>
+              <a href="/2018/10/13/tomcat/" rel="prev" title="tomcat">
+                tomcat <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -543,17 +527,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            Table of Contents
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            Overview
-          </li>
-        </ul>
-      
 
-      <section class="site-overview-wrap sidebar-panel">
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -636,22 +611,6 @@
         </div>
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#网页加速"><span class="nav-number">1.</span> <span class="nav-text">网页加速</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#流媒体加速"><span class="nav-number">2.</span> <span class="nav-text">流媒体加速</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#文件传输加速"><span class="nav-number">3.</span> <span class="nav-text">文件传输加速</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#应用协议加速"><span class="nav-number">4.</span> <span class="nav-text">应用协议加速</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#广域网应用加速"><span class="nav-number">4.1.</span> <span class="nav-text">广域网应用加速</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SSL应用加速"><span class="nav-number">4.2.</span> <span class="nav-text">SSL应用加速</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网页压缩"><span class="nav-number">4.3.</span> <span class="nav-text">网页压缩</span></a></li></ol></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
