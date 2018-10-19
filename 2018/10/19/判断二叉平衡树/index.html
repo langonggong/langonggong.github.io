@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="算法" />
+  <meta name="keywords" content="二叉平衡树" />
 
 
 
@@ -81,18 +81,18 @@
 
 
 
-<meta name="description" content="按照位数从低到高依次排序">
-<meta name="keywords" content="算法">
+<meta name="description" content="判断二叉平衡树">
+<meta name="keywords" content="二叉平衡树">
 <meta property="og:type" content="article">
-<meta property="og:title" content="基数排序">
-<meta property="og:url" content="http://langonggong.com/2018/09/05/基数排序/index.html">
+<meta property="og:title" content="判断二叉平衡树">
+<meta property="og:url" content="http://langonggong.com/2018/10/19/判断二叉平衡树/index.html">
 <meta property="og:site_name" content="武汉旭神">
-<meta property="og:description" content="按照位数从低到高依次排序">
+<meta property="og:description" content="判断二叉平衡树">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-09-28T11:30:05.067Z">
+<meta property="og:updated_time" content="2018-10-19T12:12:53.486Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="基数排序">
-<meta name="twitter:description" content="按照位数从低到高依次排序">
+<meta name="twitter:title" content="判断二叉平衡树">
+<meta name="twitter:description" content="判断二叉平衡树">
 
 
 
@@ -122,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://langonggong.com/2018/09/05/基数排序/"/>
+  <link rel="canonical" href="http://langonggong.com/2018/10/19/判断二叉平衡树/"/>
 
 
 
 
 
-  <title>基数排序 | 武汉旭神</title>
+  <title>判断二叉平衡树 | 武汉旭神</title>
   
 
 
@@ -265,7 +265,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://langonggong.com/2018/09/05/基数排序/">
+    <link itemprop="mainEntityOfPage" href="http://langonggong.com/2018/10/19/判断二叉平衡树/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="lanxu">
@@ -282,7 +282,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">基数排序</h1>
+          <h1 class="post-title" itemprop="name headline">判断二叉平衡树</h1>
         
 
         <div class="post-meta">
@@ -294,8 +294,8 @@
               
                 <span class="post-meta-item-text">Posted on</span>
               
-              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-05T23:41:05+08:00">
-                2018-09-05
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-10-19T20:10:38+08:00">
+                2018-10-19
               </time>
             
 
@@ -319,17 +319,6 @@
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/算法/" itemprop="url" rel="index">
                     <span itemprop="name">算法</span>
-                  </a>
-                </span>
-
-                
-                
-                  , 
-                
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/算法/排序/" itemprop="url" rel="index">
-                    <span itemprop="name">排序</span>
                   </a>
                 </span>
 
@@ -364,7 +353,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  391
+                  64
                 </span>
               
 
@@ -380,7 +369,7 @@
                   <span class="post-meta-item-text">Reading time &asymp;</span>
                 
                 <span title="Reading time">
-                  2
+                  1
                 </span>
               
             </div>
@@ -388,7 +377,7 @@
 
           
               <div class="post-description">
-                  按照位数从低到高依次排序
+                  判断二叉平衡树
               </div>
           
 
@@ -405,9 +394,7 @@
       
 
       
-        <p>1、构造从0到9的10个桶，将数组的每个元素按照个位数的大小放入对应的桶中<br>2、构造新的10个桶，将原桶中的数字依次弹出，按照十位数的大小依次放入对应的新桶中<br>3、对百位、千位等按照上述步骤处理</p>
-<p>需考虑负数</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">RadixSort</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">int</span>[] <span class="title">radixSort</span>(<span class="params"><span class="keyword">int</span>[] arr</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (arr == <span class="literal">null</span> || arr.length &lt; <span class="number">2</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> arr;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> posNum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i : arr) &#123;</span><br><span class="line">      <span class="keyword">if</span> (i &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">        posNum++;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span>[] posArr = <span class="keyword">new</span> <span class="keyword">int</span>[posNum];</span><br><span class="line">    <span class="keyword">int</span>[] negArr = <span class="keyword">new</span> <span class="keyword">int</span>[arr.length - posNum];</span><br><span class="line">    <span class="keyword">int</span> posIndex = <span class="number">0</span>, negIndex = <span class="number">0</span>, posMax = <span class="number">0</span>, negMax = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i : arr) &#123;</span><br><span class="line">      <span class="keyword">if</span> (i &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">        posArr[posIndex++] = i;</span><br><span class="line">        posMax = Math.max(posMax, i);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">int</span> j = -i;</span><br><span class="line">        negArr[negIndex++] = j;</span><br><span class="line">        negMax = Math.max(j, negMax);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    radixSortForPositive(posArr, posMax);</span><br><span class="line">    radixSortForPositive(negArr, negMax);</span><br><span class="line">    <span class="keyword">int</span> index = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=negArr.length<span class="number">-1</span>;i&gt;=<span class="number">0</span>;i--) &#123;</span><br><span class="line">      arr[index++] = -negArr[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;posArr.length;i++) &#123;</span><br><span class="line">      arr[index++] = posArr[i];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> arr;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//针对正数的基数排序</span></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">radixSortForPositive</span>(<span class="params"><span class="keyword">int</span>[] arr, <span class="keyword">int</span> max</span>) </span>&#123;</span><br><span class="line">    List&lt;LinkedList&lt;Integer&gt;&gt; temp1 = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    List&lt;LinkedList&lt;Integer&gt;&gt; temp2 = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">      temp1.<span class="keyword">add</span>(<span class="keyword">new</span> LinkedList&lt;&gt;());</span><br><span class="line">      temp2.<span class="keyword">add</span>(<span class="keyword">new</span> LinkedList&lt;&gt;());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//按照个位数的大小将元素放入桶中</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i : arr) &#123;</span><br><span class="line">      temp1.<span class="keyword">get</span>(i % <span class="number">10</span>).<span class="keyword">add</span>(i);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> <span class="keyword">base</span> = <span class="number">10</span>; <span class="keyword">base</span> &lt;= max; <span class="keyword">base</span> *= <span class="number">10</span>) &#123;</span><br><span class="line">      <span class="keyword">for</span> (LinkedList&lt;Integer&gt; integers : temp1) &#123;</span><br><span class="line">        <span class="keyword">while</span> (!integers.isEmpty()) &#123;</span><br><span class="line">          Integer integer = integers.pop();</span><br><span class="line">          temp2.<span class="keyword">get</span>((integer / <span class="keyword">base</span>) % <span class="number">10</span>).<span class="keyword">add</span>(integer);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      List&lt;LinkedList&lt;Integer&gt;&gt; temp;</span><br><span class="line">      temp = temp1;</span><br><span class="line">      temp1 = temp2;</span><br><span class="line">      temp2 = temp;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> index = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (LinkedList&lt;Integer&gt; integers : temp1) &#123;</span><br><span class="line">      <span class="keyword">for</span> (Integer integer : integers) &#123;</span><br><span class="line">        arr[index++] = integer;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> boolean check(<span class="type">TreeNode</span> root) &#123;</span><br><span class="line">  <span class="keyword">return</span> chk(root) != -<span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> int chk(<span class="type">TreeNode</span> treeNode) &#123;</span><br><span class="line">  <span class="keyword">if</span> (treeNode == null) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  int <span class="keyword">left</span> = chk(treeNode.<span class="keyword">left</span>);</span><br><span class="line">  int <span class="keyword">right</span> = chk(treeNode.<span class="keyword">right</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">left</span> &lt; <span class="number">0</span> || <span class="keyword">right</span> &lt; <span class="number">0</span> || <span class="type">Math</span>.<span class="built_in">abs</span>(<span class="keyword">left</span> - <span class="keyword">right</span>) &gt; <span class="number">1</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="type">Math</span>.<span class="built_in">max</span>(<span class="keyword">left</span>, <span class="keyword">right</span>) + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
     
@@ -455,7 +442,9 @@
           
             <a href="/tags/算法/" rel="tag"><i class="fa fa-tag"></i> 算法</a>
           
-            <a href="/tags/排序/" rel="tag"><i class="fa fa-tag"></i> 排序</a>
+            <a href="/tags/二叉树/" rel="tag"><i class="fa fa-tag"></i> 二叉树</a>
+          
+            <a href="/tags/二叉平衡树/" rel="tag"><i class="fa fa-tag"></i> 二叉平衡树</a>
           
         </div>
       
@@ -468,8 +457,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/09/05/计数排序/" rel="next" title="计数排序">
-                <i class="fa fa-chevron-left"></i> 计数排序
+              <a href="/2018/10/19/非递归遍历二叉树/" rel="next" title="非递归遍历二叉树">
+                <i class="fa fa-chevron-left"></i> 非递归遍历二叉树
               </a>
             
           </div>
@@ -477,10 +466,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/09/06/DNS解析/" rel="prev" title="DNS解析">
-                DNS解析 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
