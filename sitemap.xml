@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://langonggong.com/2018/10/13/DispatcherServlet/</loc>
+    
+    <lastmod>2018-10-25T12:55:15.125Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://langonggong.com/2018/10/25/%E6%B1%82%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%95%B0%E4%B8%AD%E7%9A%841%E7%9A%84%E4%B8%AA%E6%95%B0/</loc>
     
     <lastmod>2018-10-24T16:20:42.832Z</lastmod>
@@ -40,13 +47,6 @@
     <loc>http://langonggong.com/2018/10/22/%E5%89%8D%E5%BA%8F%E3%80%81%E4%B8%AD%E5%BA%8F%E5%BA%8F%E5%88%97%E6%9E%84%E5%BB%BA%E4%BA%8C%E5%8F%89%E6%A0%91/</loc>
     
     <lastmod>2018-10-22T14:22:32.153Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://langonggong.com/2018/10/13/DispatcherServlet/</loc>
-    
-    <lastmod>2018-10-18T09:47:20.753Z</lastmod>
     
   </url>
   
