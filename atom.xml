@@ -289,28 +289,6 @@
   </entry>
   
   <entry>
-    <title>tomcat</title>
-    <link href="http://langonggong.com/2018/10/13/tomcat/"/>
-    <id>http://langonggong.com/2018/10/13/tomcat/</id>
-    <published>2018-10-13T07:11:17.000Z</published>
-    <updated>2018-10-14T07:51:29.825Z</updated>
-    
-    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="tomcat架构"><a href="#tomcat架构" class="headerlink" title="tomcat架构"></a>tomcat架构</h1><p><a href="https://blog.csdn.net/xlgen157387/article/details/79006434" target="_blank" rel="noopener">Tomcat系统架构</a></p><p><a href="https://www.cnblogs.com/diegodu/p/5915300.html" target="_blank" rel="noopener">Tomcat系统架构</a></p><p><a href="https://www.ibm.com/developerworks/cn/java/j-lo-tomcat1/index.html?ca=drs-" target="_blank" rel="noopener">Tomcat系统架构</a></p><h1 id="Connector"><a href="#Connector" class="headerlink" title="Connector"></a>Connector</h1><p><a href="https://blog.csdn.net/gchd19921992/article/details/79076926" target="_blank" rel="noopener">Connector 分析</a></p><h1 id="Tomcat中的设计模式"><a href="#Tomcat中的设计模式" class="headerlink" title="Tomcat中的设计模式"></a>Tomcat中的设计模式</h1><p><a href="https://www.ibm.com/developerworks/cn/java/j-lo-tomcat2/index.html?ca=drs-" target="_blank" rel="noopener">设计模式</a></p><p><a href="https://blog.csdn.net/u012810020/article/details/71194853" target="_blank" rel="noopener">责任链模式</a></p>]]></content>
-    
-    <summary type="html">
-    
-      tomcat
-    
-    </summary>
-    
-      <category term="tomcat" scheme="http://langonggong.com/categories/tomcat/"/>
-    
-    
-      <category term="tomcat" scheme="http://langonggong.com/tags/tomcat/"/>
-    
-  </entry>
-  
-  <entry>
     <title>DispatcherServlet</title>
     <link href="http://langonggong.com/2018/10/13/DispatcherServlet/"/>
     <id>http://langonggong.com/2018/10/13/DispatcherServlet/</id>
@@ -333,6 +311,28 @@
       <category term="DispatcherServlet" scheme="http://langonggong.com/tags/DispatcherServlet/"/>
     
       <category term="SpringMvc" scheme="http://langonggong.com/tags/SpringMvc/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>tomcat</title>
+    <link href="http://langonggong.com/2018/10/13/tomcat/"/>
+    <id>http://langonggong.com/2018/10/13/tomcat/</id>
+    <published>2018-10-13T07:11:17.000Z</published>
+    <updated>2018-10-14T07:51:29.825Z</updated>
+    
+    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="tomcat架构"><a href="#tomcat架构" class="headerlink" title="tomcat架构"></a>tomcat架构</h1><p><a href="https://blog.csdn.net/xlgen157387/article/details/79006434" target="_blank" rel="noopener">Tomcat系统架构</a></p><p><a href="https://www.cnblogs.com/diegodu/p/5915300.html" target="_blank" rel="noopener">Tomcat系统架构</a></p><p><a href="https://www.ibm.com/developerworks/cn/java/j-lo-tomcat1/index.html?ca=drs-" target="_blank" rel="noopener">Tomcat系统架构</a></p><h1 id="Connector"><a href="#Connector" class="headerlink" title="Connector"></a>Connector</h1><p><a href="https://blog.csdn.net/gchd19921992/article/details/79076926" target="_blank" rel="noopener">Connector 分析</a></p><h1 id="Tomcat中的设计模式"><a href="#Tomcat中的设计模式" class="headerlink" title="Tomcat中的设计模式"></a>Tomcat中的设计模式</h1><p><a href="https://www.ibm.com/developerworks/cn/java/j-lo-tomcat2/index.html?ca=drs-" target="_blank" rel="noopener">设计模式</a></p><p><a href="https://blog.csdn.net/u012810020/article/details/71194853" target="_blank" rel="noopener">责任链模式</a></p>]]></content>
+    
+    <summary type="html">
+    
+      tomcat
+    
+    </summary>
+    
+      <category term="tomcat" scheme="http://langonggong.com/categories/tomcat/"/>
+    
+    
+      <category term="tomcat" scheme="http://langonggong.com/tags/tomcat/"/>
     
   </entry>
   
@@ -981,7 +981,7 @@
     <published>2018-08-19T08:35:51.000Z</published>
     <updated>2018-09-08T16:06:53.521Z</updated>
     
-    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script><h1 id="网易云"><a href="#网易云" class="headerlink" title="网易云"></a>网易云</h1><h2 id="通过外链添加"><a href="#通过外链添加" class="headerlink" title="通过外链添加"></a>通过外链添加</h2><p>在网易云音乐的网页版生成歌单外链</p><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;iframe <span class="attribute">frameborder</span>=<span class="string">"no"</span> <span class="attribute">border</span>=<span class="string">"0"</span> <span class="attribute">marginwidth</span>=<span class="string">"0"</span> <span class="attribute">marginheight</span>=<span class="string">"0"</span> <span class="attribute">width</span>=330 <span class="attribute">height</span>=450 <span class="attribute">src</span>=<span class="string">"//music.163.com/outchain/player?type=0&amp;id=2343741251&amp;auto=1&amp;height=430"</span>&gt;&lt;/iframe&gt;</span><br></pre></td></tr></table></figure><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="450" src="//music.163.com/outchain/player?type=0&id=2343741251&auto=1&height=430"></iframe><h2 id="通过aplayer插件"><a href="#通过aplayer插件" class="headerlink" title="通过aplayer插件"></a>通过aplayer插件</h2><p><a href="https://github.com/MoePlayer/hexo-tag-aplayer/blob/master/docs/README-zh_cn.md#meingjs-%E6%94%AF%E6%8C%81-30-%E6%96%B0%E5%8A%9F%E8%83%BD" target="_blank" rel="noopener">MeingJS 支持</a><br>id为网页上url后面的id值<br><figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% meting <span class="string">"468513829"</span> <span class="string">"netease"</span> <span class="string">"song"</span> <span class="string">"autoplay"</span> <span class="string">"mutex: true"</span> <span class="string">"listmaxheight:340px"</span> <span class="string">"preload:none"</span> <span class="string">"theme:#ad7a86"</span>%&#125;</span><br></pre></td></tr></table></figure></p>    <div id="aplayer-cNwnfrHu" class="aplayer aplayer-tag-marker meting-tag-marker" data-id="468513829" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="true" data-mutex="true" data-listmaxheight="340px" data-preload="none" data-theme="#ad7a86"></div><figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% meting <span class="string">"384485381"</span> <span class="string">"netease"</span> <span class="string">"playlist"</span> <span class="string">"autoplay"</span> <span class="string">"mutex: true"</span> <span class="string">"listmaxheight:340px"</span> <span class="string">"preload:none"</span> <span class="string">"theme:#ad7a86"</span>%&#125;</span><br></pre></td></tr></table></figure>    <div id="aplayer-wLkvdsIM" class="aplayer aplayer-tag-marker meting-tag-marker" data-id="2384642500" data-server="netease" data-type="playlist" data-mode="circulation" data-autoplay="true" data-mutex="false" data-listmaxheight="340px" data-preload="none" data-theme="#ad7a86"></div><h2 id="行间公式"><a href="#行间公式" class="headerlink" title="行间公式"></a>行间公式</h2><script type="math/tex; mode=display">f(n)=\begin{cases}n/2, & \text{如果$ x<=2 $}\\3n+1, & \text{如果$ x>2 $}\end{cases}</script><h2 id="行内公式"><a href="#行内公式" class="headerlink" title="行内公式"></a>行内公式</h2><p>比如 \(x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}\)</p>]]></content>
+    <content type="html"><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script><h1 id="网易云"><a href="#网易云" class="headerlink" title="网易云"></a>网易云</h1><h2 id="通过外链添加"><a href="#通过外链添加" class="headerlink" title="通过外链添加"></a>通过外链添加</h2><p>在网易云音乐的网页版生成歌单外链</p><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;iframe <span class="attribute">frameborder</span>=<span class="string">"no"</span> <span class="attribute">border</span>=<span class="string">"0"</span> <span class="attribute">marginwidth</span>=<span class="string">"0"</span> <span class="attribute">marginheight</span>=<span class="string">"0"</span> <span class="attribute">width</span>=330 <span class="attribute">height</span>=450 <span class="attribute">src</span>=<span class="string">"//music.163.com/outchain/player?type=0&amp;id=2343741251&amp;auto=1&amp;height=430"</span>&gt;&lt;/iframe&gt;</span><br></pre></td></tr></table></figure><iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width="330" height="450" src="//music.163.com/outchain/player?type=0&id=2343741251&auto=1&height=430"></iframe><h2 id="通过aplayer插件"><a href="#通过aplayer插件" class="headerlink" title="通过aplayer插件"></a>通过aplayer插件</h2><p><a href="https://github.com/MoePlayer/hexo-tag-aplayer/blob/master/docs/README-zh_cn.md#meingjs-%E6%94%AF%E6%8C%81-30-%E6%96%B0%E5%8A%9F%E8%83%BD" target="_blank" rel="noopener">MeingJS 支持</a><br>id为网页上url后面的id值<br><figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% meting <span class="string">"468513829"</span> <span class="string">"netease"</span> <span class="string">"song"</span> <span class="string">"autoplay"</span> <span class="string">"mutex: true"</span> <span class="string">"listmaxheight:340px"</span> <span class="string">"preload:none"</span> <span class="string">"theme:#ad7a86"</span>%&#125;</span><br></pre></td></tr></table></figure></p>    <div id="aplayer-mWYnfNZt" class="aplayer aplayer-tag-marker meting-tag-marker" data-id="468513829" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="true" data-mutex="true" data-listmaxheight="340px" data-preload="none" data-theme="#ad7a86"></div><figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% meting <span class="string">"384485381"</span> <span class="string">"netease"</span> <span class="string">"playlist"</span> <span class="string">"autoplay"</span> <span class="string">"mutex: true"</span> <span class="string">"listmaxheight:340px"</span> <span class="string">"preload:none"</span> <span class="string">"theme:#ad7a86"</span>%&#125;</span><br></pre></td></tr></table></figure>    <div id="aplayer-cHnCGDQN" class="aplayer aplayer-tag-marker meting-tag-marker" data-id="2384642500" data-server="netease" data-type="playlist" data-mode="circulation" data-autoplay="true" data-mutex="false" data-listmaxheight="340px" data-preload="none" data-theme="#ad7a86"></div><h2 id="行间公式"><a href="#行间公式" class="headerlink" title="行间公式"></a>行间公式</h2><script type="math/tex; mode=display">f(n)=\begin{cases}n/2, & \text{如果$ x<=2 $}\\3n+1, & \text{如果$ x>2 $}\end{cases}</script><h2 id="行内公式"><a href="#行内公式" class="headerlink" title="行内公式"></a>行内公式</h2><p>比如 \(x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}\)</p>]]></content>
     
     <summary type="html">
     
