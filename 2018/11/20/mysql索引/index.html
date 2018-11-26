@@ -96,8 +96,7 @@
 <meta property="og:image" content="http://langonggong.com/images/MyISAMSK.png">
 <meta property="og:image" content="http://langonggong.com/images/InnoDBPK.png">
 <meta property="og:image" content="http://langonggong.com/images/InnoDBSK.png">
-<meta property="og:image" content="http://langonggong.com/images/hashIndex.jpg">
-<meta property="og:updated_time" content="2018-11-26T11:39:26.049Z">
+<meta property="og:updated_time" content="2018-11-26T12:07:33.060Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mysql索引">
 <meta name="twitter:description" content="mysql索引">
@@ -362,7 +361,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  2,793
+                  3,668
                 </span>
               
 
@@ -378,7 +377,7 @@
                   <span class="post-meta-item-text">Reading time &asymp;</span>
                 
                 <span title="Reading time">
-                  10
+                  13
                 </span>
               
             </div>
@@ -440,6 +439,37 @@
 <li>B+树的查询效率更加稳定。B树搜索有可能会在非叶子结点结束，越靠近根节点的记录查找时间越短，只要找到关键字即可确定记录的存在，其性能等价于在关键字全集内做一次二分查找。而在B+树中，顺序检索比较明显，随机检索时，任何关键字的查找都必须走一条从根节点到叶节点的路，所有关键字的查找路径长度相同，导致每一个关键字的查询效率相当。</li>
 <li>（数据库索引采用B+树的主要原因是）B-树在提高了磁盘IO性能的同时并没有解决元素遍历的效率低下的问题。B+树的叶子节点使用指针顺序连接在一起，只要遍历叶子节点就可以实现整棵树的遍历。而且在数据库中基于范围的查询是非常频繁的，而B树不支持这样的操作（或者说效率太低）</li>
 </ul>
+<h1 id="索引的分类"><a href="#索引的分类" class="headerlink" title="索引的分类"></a>索引的分类</h1><p>从数据结构角度</p>
+<ul>
+<li>B+树索引</li>
+<li>hash索引</li>
+</ul>
+<p>从物理存储角度</p>
+<ul>
+<li>聚集索引（clustered index）</li>
+<li>非聚集索引（non-clustered index）</li>
+</ul>
+<p>从逻辑角度</p>
+<ul>
+<li>普通索引或者单列索引</li>
+<li>唯一索引</li>
+<li>主键索引：主键索引是一种特殊的唯一索引，不允许有空值</li>
+<li>多列索引（复合索引）：复合索引指多个字段上创建的索引，只有在查询条件中使用了创建索引时的第一个字段，索引才会被使用。使用复合索引时遵循最左前缀集合</li>
+<li>全文索引</li>
+</ul>
+<p>从存储引擎的角度</p>
+<ul>
+<li>主键索引</li>
+<li>辅助索引(二级索引)</li>
+</ul>
+<p>B+树索引和哈希索引的明显区别是</p>
+<ul>
+<li>如果是等值查询，那么哈希索引明显有绝对优势，因为只需要经过一次算法即可找到相应的键值；当然了，这个前提是，键值都是唯一的。如果键值不是唯一的，就需要先找到该键所在位置，然后再根据链表往后扫描，直到找到相应的数据</li>
+<li>哈希索引无法完成范围查询检索</li>
+<li>哈希索引无法利用索引完成排序，以及like ‘xxx%’ 这样的部分模糊查询（这种部分模糊查询，其实本质上也是范围查询）</li>
+<li>哈希索引也不支持多列联合索引的最左匹配规则</li>
+<li>B+树索引的关键字检索效率比较平均，不像B树那样波动幅度大，在有大量重复键值情况下，哈希索引的效率也是极低的，因为存在所谓的哈希碰撞问题</li>
+</ul>
 <h1 id="不同引擎的索引"><a href="#不同引擎的索引" class="headerlink" title="不同引擎的索引"></a>不同引擎的索引</h1><h2 id="MyISAM索引实现"><a href="#MyISAM索引实现" class="headerlink" title="MyISAM索引实现"></a>MyISAM索引实现</h2><h3 id="主键索引"><a href="#主键索引" class="headerlink" title="主键索引"></a>主键索引</h3><p>MyISAM引擎使用B+Tree作为索引结构，叶节点的data域存放的是数据记录的地址</p>
 <p><img src="/images/MyISAMPK.png"></p>
 <h3 id="辅助索引"><a href="#辅助索引" class="headerlink" title="辅助索引"></a>辅助索引</h3><p>在MyISAM中，主索引和辅助索引（Secondary key）在结构上没有任何区别，只是主索引要求key是唯一的，而辅助索引的key可以重复</p>
@@ -455,26 +485,14 @@
 <li>一是主索引的区别，InnoDB的数据文件本身就是索引文件。而MyISAM的索引和数据是分开的。</li>
 <li>二是辅助索引的区别：InnoDB的辅助索引data域存储相应记录主键的值而不是地址。而MyISAM的辅助索引和主索引没有多大区别。</li>
 </ul>
-<h1 id="索引数据结构"><a href="#索引数据结构" class="headerlink" title="索引数据结构"></a>索引数据结构</h1><p>在MySQL里常用的索引数据结构有B+树索引和哈希索引两种</p>
-<p>B+树是一个平衡的多叉树，从根节点到每个叶子节点的高度差值不超过1，而且同层级的节点间有指针相互链接<br>在B+树上的常规检索，从根节点到叶子节点的搜索效率基本相当，不会出现大幅波动，而且基于索引的顺序扫描时，也可以利用双向指针快速左右移动，效率非常高</p>
-<p>而哈希索引的示意图则是这样的<br><img src="/images/hashIndex.jpg"></p>
-<p>从上面的图来看，B+树索引和哈希索引的明显区别是</p>
-<ul>
-<li>如果是等值查询，那么哈希索引明显有绝对优势，因为只需要经过一次算法即可找到相应的键值；当然了，这个前提是，键值都是唯一的。如果键值不是唯一的，就需要先找到该键所在位置，然后再根据链表往后扫描，直到找到相应的数据</li>
-<li>哈希索引无法完成范围查询检索</li>
-<li>哈希索引无法利用索引完成排序，以及like ‘xxx%’ 这样的部分模糊查询（这种部分模糊查询，其实本质上也是范围查询）</li>
-<li>哈希索引也不支持多列联合索引的最左匹配规则</li>
-<li>B+树索引的关键字检索效率比较平均，不像B树那样波动幅度大，在有大量重复键值情况下，哈希索引的效率也是极低的，因为存在所谓的哈希碰撞问题</li>
-</ul>
-<p>如果存储的数据重复度很低（也就是说基数很大），对该列数据以等值查询为主，没有范围查询、没有排序的时候，特别适合采用哈希索引</p>
-<h1 id="索引类型"><a href="#索引类型" class="headerlink" title="索引类型"></a>索引类型</h1><h2 id="前缀索引"><a href="#前缀索引" class="headerlink" title="前缀索引"></a>前缀索引</h2><p>有时候需要索引很长的字符列，这会让索引变得大且慢。通常可以索引开始的部分字符，这样可以大大节约索引空间，从而提高索引效率。<br>对于BLOB，TEXT，或者很长的VARCHAR类型的列，必须使用前缀索引，因为MySQL不允许索引这些列的完整长度。<br>要选择足够长的前缀以保证较高的选择性，同时又不能太长（以便节约空间）。前缀应该足够长，以使得前缀索引的选择性接近于索引的整个列。<br>mysql无法使用其前缀索引做ORDER BY和GROUP BY，也无法使用前缀索引做覆盖扫描。</p>
+<h1 id="索引详解"><a href="#索引详解" class="headerlink" title="索引详解"></a>索引详解</h1><h2 id="前缀索引"><a href="#前缀索引" class="headerlink" title="前缀索引"></a>前缀索引</h2><p>有时候需要索引很长的字符列，这会让索引变得大且慢。通常可以索引开始的部分字符，这样可以大大节约索引空间，从而提高索引效率。<br>对于BLOB，TEXT，或者很长的VARCHAR类型的列，必须使用前缀索引，因为MySQL不允许索引这些列的完整长度。<br>要选择足够长的前缀以保证较高的选择性，同时又不能太长（以便节约空间）。前缀应该足够长，以使得前缀索引的选择性接近于索引的整个列。<br>mysql无法使用其前缀索引做ORDER BY和GROUP BY，也无法使用前缀索引做覆盖扫描。</p>
 <h2 id="多列索引"><a href="#多列索引" class="headerlink" title="多列索引"></a>多列索引</h2><p>多列索引并不是指建立多个单列索引，而是指在多个字段建立一个索引。</p>
 <ul>
 <li>又叫联合索引、复合索引。符合最左前缀规则</li>
 <li>多列建索引比对每个列分别建索引更有优势，因为索引建立得越多就越占磁盘空间，在更新数据的时候速度会更慢。那如果我们分别在a和b上创建两个列索引，mysql的处理方式就不一样了，它会选择一个最严格的索引来进行检索，可以理解为检索能力最强的那个索引来检索，另外一个利用不上了，这样效果就不如多列索引了</li>
 <li>将选择性最高的列放到索引的最前列</li>
 </ul>
-<h1 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h1><h2 id="覆盖索引"><a href="#覆盖索引" class="headerlink" title="覆盖索引"></a>覆盖索引</h2><ul>
+<h2 id="覆盖索引"><a href="#覆盖索引" class="headerlink" title="覆盖索引"></a>覆盖索引</h2><ul>
 <li>解释一： 就是select的数据列只用从索引中就能够取得，不必从数据表中读取，换句话说查询列要被所使用的索引覆盖。</li>
 <li>解释二： 索引是高效找到行的一个方法，当能通过检索索引就可以读取想要的数据，那就不需要再到数据表中读取行了。如果一个索引包含了（或覆盖了）满足查询语句中字段与条件的数据就叫做覆盖索引。</li>
 <li>解释三：是非聚集组合索引的一种形式，它包括在查询里的Select、Join和Where子句用到的所有列（即建立索引的字段正好是覆盖查询语句[select子句]与查询条件[Where子句]中所涉及的字段，也即，索引包含了查询正在查找的所有数据）</li>
@@ -482,12 +500,34 @@
 <p>使用explain，可以通过输出的extra列来判断，对于一个索引覆盖查询，显示为using index,MySQL查询优化器在执行查询前会决定是否有索引覆盖查询。<br>覆盖索引也并不适用于任意的索引类型，索引必须存储列的值。Hash 和full-text索引不存储值，因此MySQL只能使用B-TREE</p>
 <h2 id="空间索引"><a href="#空间索引" class="headerlink" title="空间索引"></a>空间索引</h2><p><a href="https://blog.csdn.net/MongChia1993/article/details/69941783#toc_16" target="_blank" rel="noopener">参考链接</a></p>
 <h2 id="全文索引"><a href="#全文索引" class="headerlink" title="全文索引"></a>全文索引</h2><p><a href="https://www.cnblogs.com/itxiongwei/p/7064252.html" target="_blank" rel="noopener">参考链接</a></p>
-<h1 id="建索引的几大原则"><a href="#建索引的几大原则" class="headerlink" title="建索引的几大原则"></a>建索引的几大原则</h1><ul>
-<li>最左前缀匹配原则</li>
-<li>=和in可以乱序</li>
-<li>尽量选择区分度高的列作为索引</li>
-<li>索引列不能参与计算</li>
-<li>尽量的扩展索引，不要新建索引</li>
+<h1 id="索引的优缺点"><a href="#索引的优缺点" class="headerlink" title="索引的优缺点"></a>索引的优缺点</h1><p>优点</p>
+<ul>
+<li>通过创建唯一性索引，可以保证数据库表中每一行数据的唯一性。</li>
+<li>可以大大加快数据的检索速度，这也是创建索引的最主要的原因。</li>
+<li>可以加速表和表之间的连接，特别是在实现数据的参考完整性方面特别有意义。</li>
+<li>在使用分组和排序子句进行数据检索时，同样可以显著减少查询中分组和排序的时间。</li>
+<li>通过使用索引，可以在查询的过程中，使用优化隐藏器，提高系统的性能</li>
+</ul>
+<p>缺点</p>
+<ul>
+<li>创建索引和维护索引要耗费时间，这种时间随着数据量的增加而增加。</li>
+<li>索引需要占物理空间，除了数据表占数据空间之外，每一个索引还要占一定的物理空间，如果要建立聚簇索引，那么需要的空间就会更大。</li>
+<li>当对表中的数据进行增加、删除和修改的时候，索引也要动态的维护，这样就降低了数据的维护速度。</li>
+</ul>
+<h1 id="索引建立原则"><a href="#索引建立原则" class="headerlink" title="索引建立原则"></a>索引建立原则</h1><p>一般来说，不应该创建索引的的这些列具有下列特点</p>
+<ul>
+<li>对于那些在查询中很少使用或者参考的列不应该创建索引。这是因为，既然这些列很少使用到，因此有索引或者无索引，并不能提高查询速度。相反，由于增加了索引，反而降低了系统的维护速度和增大了空间需求。</li>
+<li>对于那些只有很少数据值的列也不应该增加索引。这是因为，由于这些列的取值很少，例如人事表的性别列，在查询的结果中，结果集的数据行占了表中数据行的很大比例，即需要在表中搜索的数据行的比例很大。增加索引，并不能明显加快检索速度。</li>
+<li>对于那些定义为text, image和bit数据类型的列不应该增加索引。这是因为，这些列的数据量要么相当大，要么取值很少。</li>
+<li>当修改性能远远大于检索性能时，不应该创建索引。这是因为，修改性能和检索性能是互相矛盾的。当增加索引时，会提高检索性能，但是会降低修改性能。当减少索引时，会提高修改性能，降低检索性能。因此，当修改性能远远大于检索性能时，不应该创建索引。</li>
+</ul>
+<p>常见规则</p>
+<ul>
+<li>最左前缀匹配原则<br>  mysql会一直向右匹配直到遇到范围查询(&gt;、&lt;、between、like)就停止匹配，比如a = 1 and b = 2 and c &gt; 3 and d = 4 如果建立(a,b,c,d)顺序的索引，d是用不到索引的，如果建立(a,b,d,c)的索引则都可以用到，a,b,d的顺序可以任意调整</li>
+<li>=和in可以乱序<br>  比如a = 1 and b = 2 and c = 3 建立(a,b,c)索引可以任意顺序，mysql的查询优化器会帮你优化成索引可以识别的形式</li>
+<li>尽量选择区分度高的列作为索引<br>  区分度的公式是count(distinct col)/count(*)，表示字段不重复的比例，比例越大我们扫描的记录数越少，唯一键的区分度是1</li>
+<li>索引列不能参与计算<br>  比如from_unixtime(create_time) = ’2014-05-29’就不能使用到索引，原因很简单，b+树中存的都是数据表中的字段值，但进行检索时，需要把所有元素都应用函数才能比较，显然成本太大</li>
+<li>尽量的扩展索引，不要新建索引<br>  比如表中已经有a的索引，现在要加(a,b)的索引，那么只需要修改原来的索引即可</li>
 </ul>
 
       
@@ -718,7 +758,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#树"><span class="nav-number">1.</span> <span class="nav-text">树</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#红黑树"><span class="nav-number">1.1.</span> <span class="nav-text">红黑树</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B树"><span class="nav-number">1.2.</span> <span class="nav-text">B树</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B-树"><span class="nav-number">1.3.</span> <span class="nav-text">B+树</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对比"><span class="nav-number">1.4.</span> <span class="nav-text">对比</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#不同引擎的索引"><span class="nav-number">2.</span> <span class="nav-text">不同引擎的索引</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MyISAM索引实现"><span class="nav-number">2.1.</span> <span class="nav-text">MyISAM索引实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#主键索引"><span class="nav-number">2.1.1.</span> <span class="nav-text">主键索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#辅助索引"><span class="nav-number">2.1.2.</span> <span class="nav-text">辅助索引</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB索引实现"><span class="nav-number">2.2.</span> <span class="nav-text">InnoDB索引实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#主键索引-1"><span class="nav-number">2.2.1.</span> <span class="nav-text">主键索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#辅助索引-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">辅助索引</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB和MyISAM的区别"><span class="nav-number">2.3.</span> <span class="nav-text">InnoDB和MyISAM的区别</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#索引数据结构"><span class="nav-number">3.</span> <span class="nav-text">索引数据结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#索引类型"><span class="nav-number">4.</span> <span class="nav-text">索引类型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#前缀索引"><span class="nav-number">4.1.</span> <span class="nav-text">前缀索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多列索引"><span class="nav-number">4.2.</span> <span class="nav-text">多列索引</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#其他"><span class="nav-number">5.</span> <span class="nav-text">其他</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#覆盖索引"><span class="nav-number">5.1.</span> <span class="nav-text">覆盖索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#空间索引"><span class="nav-number">5.2.</span> <span class="nav-text">空间索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#全文索引"><span class="nav-number">5.3.</span> <span class="nav-text">全文索引</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#建索引的几大原则"><span class="nav-number">6.</span> <span class="nav-text">建索引的几大原则</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#树"><span class="nav-number">1.</span> <span class="nav-text">树</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#红黑树"><span class="nav-number">1.1.</span> <span class="nav-text">红黑树</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B树"><span class="nav-number">1.2.</span> <span class="nav-text">B树</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B-树"><span class="nav-number">1.3.</span> <span class="nav-text">B+树</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#对比"><span class="nav-number">1.4.</span> <span class="nav-text">对比</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#索引的分类"><span class="nav-number">2.</span> <span class="nav-text">索引的分类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#不同引擎的索引"><span class="nav-number">3.</span> <span class="nav-text">不同引擎的索引</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MyISAM索引实现"><span class="nav-number">3.1.</span> <span class="nav-text">MyISAM索引实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#主键索引"><span class="nav-number">3.1.1.</span> <span class="nav-text">主键索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#辅助索引"><span class="nav-number">3.1.2.</span> <span class="nav-text">辅助索引</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB索引实现"><span class="nav-number">3.2.</span> <span class="nav-text">InnoDB索引实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#主键索引-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">主键索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#辅助索引-1"><span class="nav-number">3.2.2.</span> <span class="nav-text">辅助索引</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InnoDB和MyISAM的区别"><span class="nav-number">3.3.</span> <span class="nav-text">InnoDB和MyISAM的区别</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#索引详解"><span class="nav-number">4.</span> <span class="nav-text">索引详解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#前缀索引"><span class="nav-number">4.1.</span> <span class="nav-text">前缀索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多列索引"><span class="nav-number">4.2.</span> <span class="nav-text">多列索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#覆盖索引"><span class="nav-number">4.3.</span> <span class="nav-text">覆盖索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#空间索引"><span class="nav-number">4.4.</span> <span class="nav-text">空间索引</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#全文索引"><span class="nav-number">4.5.</span> <span class="nav-text">全文索引</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#索引的优缺点"><span class="nav-number">5.</span> <span class="nav-text">索引的优缺点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#索引建立原则"><span class="nav-number">6.</span> <span class="nav-text">索引建立原则</span></a></li></ol></div>
             
 
           </div>
@@ -752,7 +792,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">38.7k</span>
+    <span title="Site words total count">39.5k</span>
   
 </div>
 
