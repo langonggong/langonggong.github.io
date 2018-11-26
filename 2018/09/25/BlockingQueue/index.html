@@ -89,7 +89,7 @@
 <meta property="og:site_name" content="武汉旭神">
 <meta property="og:description" content="java阻塞队列LinkedBlockingQueue与ArrayBlockingQueue">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-09-28T11:27:02.445Z">
+<meta property="og:updated_time" content="2018-11-17T08:50:35.473Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="BlockingQueue">
 <meta name="twitter:description" content="java阻塞队列LinkedBlockingQueue与ArrayBlockingQueue">
@@ -405,7 +405,7 @@
       
 
       
-        <p>阻塞队列与我们平常接触的普通队列(LinkedList或ArrayList等)的最大不同点，在于阻塞队列支出阻塞添加和阻塞删除方法</p>
+        <p>阻塞队列与我们平常接触的普通队列(LinkedList或ArrayList等)的最大不同点，在于阻塞队列支持阻塞添加和阻塞删除方法</p>
 <p>Java中的阻塞队列接口BlockingQueue继承自Queue接口<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">BlockingQueue</span>&lt;<span class="title">E</span>&gt; <span class="keyword">extends</span> <span class="title">Queue</span>&lt;<span class="title">E</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//将指定的元素插入到此队列的尾部（如果立即可行且不会超过该队列的容量）</span></span><br><span class="line">    <span class="comment">//在成功时返回 true，如果此队列已满，则抛IllegalStateException。 </span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span></span>; </span><br><span class="line"></span><br><span class="line">    <span class="comment">//将指定的元素插入到此队列的尾部（如果立即可行且不会超过该队列的容量） </span></span><br><span class="line">    <span class="comment">// 将指定的元素插入此队列的尾部，如果该队列已满， </span></span><br><span class="line">    <span class="comment">//则在到达指定的等待时间之前等待可用的空间,该方法可中断 </span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">offer</span><span class="params">(E e, <span class="keyword">long</span> timeout, TimeUnit unit)</span> <span class="keyword">throws</span> InterruptedException</span>; </span><br><span class="line"></span><br><span class="line">    <span class="comment">//将指定的元素插入此队列的尾部，如果该队列已满，则一直等到（阻塞）。 </span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">put</span><span class="params">(E e)</span> <span class="keyword">throws</span> InterruptedException</span>; </span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取并移除此队列的头部，如果没有元素则等待（阻塞）， </span></span><br><span class="line">    <span class="comment">//直到有元素将唤醒等待线程执行该操作 </span></span><br><span class="line">    <span class="function">E <span class="title">take</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException</span>; </span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取并移除此队列的头部，在指定的等待时间前一直等到获取元素， //超过时间方法将结束</span></span><br><span class="line">    <span class="function">E <span class="title">poll</span><span class="params">(<span class="keyword">long</span> timeout, TimeUnit unit)</span> <span class="keyword">throws</span> InterruptedException</span>; </span><br><span class="line"></span><br><span class="line">    <span class="comment">//从此队列中移除指定元素的单个实例（如果存在）。 </span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">remove</span><span class="params">(Object o)</span></span>; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <ul>
 <li><p>插入方法：<br>add(E e) : 添加成功返回true，失败抛IllegalStateException异常<br>offer(E e) : 成功返回 true，如果此队列已满，则返回 false。<br>put(E e) :将元素插入此队列的尾部，如果该队列已满，则一直阻塞</p>
@@ -597,7 +597,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">47</span>
+                  <span class="site-state-item-count">49</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -709,7 +709,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">35.2k</span>
+    <span title="Site words total count">38.7k</span>
   
 </div>
 
