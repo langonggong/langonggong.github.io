@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://langonggong.com/2018/08/19/mysql/</loc>
+    
+    <lastmod>2018-11-28T05:39:32.761Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://langonggong.com/2018/11/27/InnoDB%E9%94%81/</loc>
     
     <lastmod>2018-11-26T17:28:24.081Z</lastmod>
@@ -348,13 +355,6 @@
     <loc>http://langonggong.com/2018/09/06/DNS%E8%A7%A3%E6%9E%90/</loc>
     
     <lastmod>2018-09-06T09:56:17.291Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://langonggong.com/2018/08/19/mysql/</loc>
-    
-    <lastmod>2018-08-19T05:55:49.435Z</lastmod>
     
   </url>
   
