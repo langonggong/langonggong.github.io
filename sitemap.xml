@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://langonggong.com/2018/08/19/java-concurrency/</loc>
+    
+    <lastmod>2018-12-02T11:51:45.345Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://langonggong.com/2018/10/14/%E9%95%BF%E8%BF%9E%E6%8E%A5/</loc>
     
     <lastmod>2018-11-29T10:34:26.512Z</lastmod>
@@ -306,13 +313,6 @@
     <loc>http://langonggong.com/2018/09/19/%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E7%AE%97%E6%B3%95/</loc>
     
     <lastmod>2018-09-28T11:28:32.036Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://langonggong.com/2018/08/19/java-concurrency/</loc>
-    
-    <lastmod>2018-09-28T11:28:04.449Z</lastmod>
     
   </url>
   
