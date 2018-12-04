@@ -101,7 +101,7 @@
 <meta property="og:image" content="http://langonggong.com/images/classLoader.png">
 <meta property="og:image" content="http://langonggong.com/images/jvm_complier.png">
 <meta property="og:image" content="http://langonggong.com/images/jvm_jit.png">
-<meta property="og:updated_time" content="2018-11-01T13:05:17.703Z">
+<meta property="og:updated_time" content="2018-12-04T12:40:06.191Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="java虚拟机">
 <meta name="twitter:description" content="《深入理解JAVA虚拟机实战》读书笔记">
@@ -377,7 +377,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  6,748
+                  6,873
                 </span>
               
 
@@ -393,7 +393,7 @@
                   <span class="post-meta-item-text">Reading time &asymp;</span>
                 
                 <span title="Reading time">
-                  23
+                  24
                 </span>
               
             </div>
@@ -519,6 +519,11 @@
 </ul>
 </li>
 <li>G1(Garbage First)<br>  图片中的问号位置<br>  JDK 1.7后有G1</li>
+</ul>
+<p>说明：</p>
+<ul>
+<li>Parallel Scanvenge<br>  也叫吞吐量优先收集器，吞吐量=运行用户代码时间/(运行用户代码时间 + GC时间)。停顿时间短，适合与用户交互的程序；高吞吐量，可以有效利用CPU时间，尽管完成计算任务，适合后台运算而不需要太多交互的任务</li>
+<li>CMS<br>  目标：最短回收停顿时间。并发收集，低停顿，适合B/S架构，需要低延迟时间的应用需求</li>
 </ul>
 <h2 id="GC日志"><a href="#GC日志" class="headerlink" title="GC日志"></a>GC日志</h2><p>日志格式<br><img src="/images/gc_log.png"></p>
 <figure class="highlight scheme"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="name">GC（GC类型，当前是Minor</span> GC） (<span class="name">Allocation</span> Failure) [<span class="name">DefNew（GC的区域，当前为新生代）:</span> <span class="number">5688</span>K（垃圾回收前的大小）-&gt;790K（垃圾回收以后的大小）(<span class="name">9216K</span>)（该区域总大小）, <span class="number">0.0060899</span> secs] <span class="number">5688</span>K（堆在垃圾回收前的大小）-&gt;4886K（堆在垃圾回收后的大小）(<span class="name">19456K</span>)（堆的总大小）, <span class="number">0.0061183</span> secs] [<span class="name">Times:</span> user=0.00（用户态消耗CPU时间） sys=0.01（内核态小时CPU时间）, real=0.00 secs（操作的实际时间）]</span><br></pre></td></tr></table></figure>
@@ -741,7 +746,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">50</span>
+                  <span class="site-state-item-count">51</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -853,7 +858,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">43.0k</span>
+    <span title="Site words total count">43.3k</span>
   
 </div>
 
