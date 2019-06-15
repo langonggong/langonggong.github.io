@@ -1,0 +1,20 @@
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Hexo version: \u001b[35m3.7.1\u001b[39m","time":"2018-08-19T08:14:23.506Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Working directory: \u001b[35m~/learn/lanxu-hexo/\u001b[39m","time":"2018-08-19T08:14:23.508Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Config loaded: \u001b[35m~/learn/lanxu-hexo/_config.yml\u001b[39m","time":"2018-08-19T08:14:23.618Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Plugin loaded: \u001b[35mhexo-asset-image\u001b[39m","time":"2018-08-19T08:14:23.722Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Plugin loaded: \u001b[35mhexo-generator-archive\u001b[39m","time":"2018-08-19T08:14:23.726Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Plugin loaded: \u001b[35mhexo-deployer-git\u001b[39m","time":"2018-08-19T08:14:23.751Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Plugin loaded: \u001b[35mhexo-generator-category\u001b[39m","time":"2018-08-19T08:14:23.753Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Plugin loaded: \u001b[35mhexo-generator-feed\u001b[39m","time":"2018-08-19T08:14:23.756Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Plugin loaded: \u001b[35mhexo-generator-tag\u001b[39m","time":"2018-08-19T08:14:23.781Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Plugin loaded: \u001b[35mhexo-generator-index\u001b[39m","time":"2018-08-19T08:14:23.783Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Plugin loaded: \u001b[35mhexo-generator-sitemap\u001b[39m","time":"2018-08-19T08:14:23.784Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Plugin loaded: \u001b[35mhexo-generator-json-content\u001b[39m","time":"2018-08-19T08:14:23.818Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Plugin loaded: \u001b[35mhexo-renderer-jade\u001b[39m","time":"2018-08-19T08:14:24.352Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Plugin loaded: \u001b[35mhexo-renderer-ejs\u001b[39m","time":"2018-08-19T08:14:24.356Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Plugin loaded: \u001b[35mhexo-renderer-sass\u001b[39m","time":"2018-08-19T08:14:24.383Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Plugin loaded: \u001b[35mhexo-renderer-marked\u001b[39m","time":"2018-08-19T08:14:24.388Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Plugin loaded: \u001b[35mhexo-renderer-stylus\u001b[39m","time":"2018-08-19T08:14:24.389Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Plugin loaded: \u001b[35mhexo-renderer-pug\u001b[39m","time":"2018-08-19T08:14:24.456Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Plugin loaded: \u001b[35mhexo-server\u001b[39m","time":"2018-08-19T08:14:24.524Z","v":0}
+{"name":"hexo","hostname":"lanxudeMBP.lan","pid":16458,"level":20,"msg":"Database saved","time":"2018-08-19T08:14:24.530Z","v":0}
