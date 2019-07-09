@@ -80,7 +80,7 @@ ObjectMonitor() {
     _waiters      = 0,
     _recursions   = 0;
     _object       = NULL;
-    _owner        = NULL;
+    _owner        = NULL; //指向持有ObjectMonitor对象的线程
     _WaitSet      = NULL; //处于wait状态的线程，会被加入到_WaitSet
     _WaitSetLock  = 0 ;
     _Responsible  = NULL ;
