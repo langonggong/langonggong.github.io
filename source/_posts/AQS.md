@@ -176,10 +176,12 @@ protected int tryAcquireShared(int acquires) {
          //如果当前等待队列的第一个线程不是当前线程，那么就返回-1表示当前线程需要等待
          if (first != null && first != current)
               return -1;
-         //如果当前队列没有等待者，或者当前线程就是等待队列第一个等待者，那么先取得semaphore还有几个许可证，并且减去当前线程需要的许可证得到剩下的值
+         //如果当前队列没有等待者，或者当前线程就是等待队列第一个等待者，
+         //那么先取得semaphore还有几个许可证，并且减去当前线程需要的许可证得到剩下的值
          int available = getState();
          int remaining = available - acquires;
-         //如果remining<0，那么反馈给AQS当前线程需要等待，如果remaining>0，并且设置availble成功设置成剩余数，那么返回剩余值(>0)，也就告知AQS当前线程拿到许可，可以继续执行。
+         //如果remining<0，那么反馈给AQS当前线程需要等待，如果remaining>0，并且设置availble成功设置成剩余数，
+         //那么返回剩余值(>0)，也就告知AQS当前线程拿到许可，可以继续执行。
          if (remaining < 0 ||compareAndSetState(available, remaining))
              return remaining;
  }
