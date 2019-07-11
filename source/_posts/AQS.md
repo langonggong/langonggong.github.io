@@ -199,12 +199,16 @@ protected int tryAcquireShared(int acquires) {
 `闭锁`则要保持其状态，在这个状态到达终止态之前，所有线程都会被park住，闭锁可以设定初始值，这个值的含义就是这个闭锁需要被countDown()几次，因为每次CountDown是sync.releaseShared(1),而一开始初始值为10的话，那么这个闭锁需要被countDown()十次，才能够将这个初始值减到0，从而释放原子状态，让等待的所有线程通过
 
 ```
-//await时候执行，只查看当前需要countDown数量减为0了，如果为0，说明可以继续执行，否则需要park住，等待countDown次数足够，并且unpark所有等待线程
+//await时候执行，只查看当前需要countDown数量减为0了，如果为0，说明可以继续执行，
+//否则需要park住，等待countDown次数足够，并且unpark所有等待线程
 public int tryAcquireShared(int acquires) {
      return getState() == 0? 1 : -1;
 }
  
-//countDown 时候执行，如果当前countDown数量为0，说明没有线程await，直接返回false而不需要唤醒park住线程，如果不为0，得到剩下需要 countDown的数量并且compareAndSet,最终返回剩下的countDown数量是否为0,供AQS判定是否释放所有await线程。
+//countDown 时候执行，如果当前countDown数量为0，说明没有线程await，
+//直接返回false而不需要唤醒park住线程，
+//如果不为0，得到剩下需要 countDown的数量并且compareAndSet,
+//最终返回剩下的countDown数量是否为0,供AQS判定是否释放所有await线程。
 public boolean tryReleaseShared(int releases) {
     for (;;) {
          int c = getState();
