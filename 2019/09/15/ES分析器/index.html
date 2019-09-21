@@ -89,7 +89,7 @@
 <meta property="og:site_name" content="武汉旭神">
 <meta property="og:description" content="ES分析器，由字符过滤器、分词器、分词过滤器组成">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-21T15:10:35.422Z">
+<meta property="og:updated_time" content="2019-09-21T15:04:42.044Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ES分析器">
 <meta name="twitter:description" content="ES分析器，由字符过滤器、分词器、分词过滤器组成">
@@ -353,7 +353,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  186
+                  191
                 </span>
               
 
@@ -400,7 +400,7 @@
 <figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">//新建索引</span><br><span class="line">PUT asciifold_example</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"settings"</span>: &#123;</span><br><span class="line">        <span class="string">"analysis"</span>: &#123;</span><br><span class="line">            <span class="string">"analyzer"</span>: &#123;</span><br><span class="line">                <span class="string">"my_analyzer"</span>: &#123;</span><br><span class="line">                    <span class="string">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">                    <span class="string">"filter"</span>: [</span><br><span class="line">                        <span class="string">"my_ascii_folding"</span></span><br><span class="line">                    ]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"filter"</span>: &#123;</span><br><span class="line">                <span class="string">"my_ascii_folding"</span>: &#123;</span><br><span class="line">                    <span class="string">"type"</span>: <span class="string">"asciifolding"</span>,</span><br><span class="line">                    <span class="string">"preserve_original"</span>: false</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//提交文本</span></span><br><span class="line">POST asciifold_example/_analyze</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"analyzer"</span>: <span class="string">"my_analyzer"</span>,</span><br><span class="line">    <span class="string">"text"</span>: <span class="string">"Êê Ẑẑ Ĉĉ Ŝŝ Ŋŋ Öö"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//获取结果</span></span><br><span class="line">[<span class="meta">Ee,Zz,Cc,Ss,Nn,Oo</span>]</span><br></pre></td></tr></table></figure>
-<h2 id="过滤"><a href="#过滤" class="headerlink" title="过滤"></a>过滤</h2><h3 id="Length-Token-Filter"><a href="#Length-Token-Filter" class="headerlink" title="Length Token Filter"></a>Length Token Filter</h3><p>长度过滤器。会移除token流中太长或太短的标记</p>
+<h3 id="词干提取器"><a href="#词干提取器" class="headerlink" title="词干提取器"></a>词干提取器</h3><h2 id="过滤"><a href="#过滤" class="headerlink" title="过滤"></a>过滤</h2><h3 id="Length-Token-Filter"><a href="#Length-Token-Filter" class="headerlink" title="Length Token Filter"></a>Length Token Filter</h3><p>长度过滤器。会移除token流中太长或太短的标记</p>
 <h2 id="切割"><a href="#切割" class="headerlink" title="切割"></a>切割</h2><h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2>
       
     </div>
@@ -471,6 +471,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/09/21/词干提取器/" rel="prev" title="词干提取器">
+                词干提取器 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -552,7 +556,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">53</span>
+                  <span class="site-state-item-count">54</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -630,7 +634,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#分析器"><span class="nav-number">1.</span> <span class="nav-text">分析器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CharFilter"><span class="nav-number">2.</span> <span class="nav-text">CharFilter</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Tokenizer"><span class="nav-number">3.</span> <span class="nav-text">Tokenizer</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Tokenizer-Filter"><span class="nav-number">4.</span> <span class="nav-text">Tokenizer Filter</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#转换"><span class="nav-number">4.1.</span> <span class="nav-text">转换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Lowercase-Token-Filter"><span class="nav-number">4.1.1.</span> <span class="nav-text">Lowercase Token Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Uppercase-Token-Filter"><span class="nav-number">4.1.2.</span> <span class="nav-text">Uppercase Token Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ASCII-Folding-Token-Filter"><span class="nav-number">4.1.3.</span> <span class="nav-text">ASCII Folding Token Filter</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#过滤"><span class="nav-number">4.2.</span> <span class="nav-text">过滤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Length-Token-Filter"><span class="nav-number">4.2.1.</span> <span class="nav-text">Length Token Filter</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切割"><span class="nav-number">4.3.</span> <span class="nav-text">切割</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析"><span class="nav-number">4.4.</span> <span class="nav-text">分析</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#分析器"><span class="nav-number">1.</span> <span class="nav-text">分析器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CharFilter"><span class="nav-number">2.</span> <span class="nav-text">CharFilter</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Tokenizer"><span class="nav-number">3.</span> <span class="nav-text">Tokenizer</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Tokenizer-Filter"><span class="nav-number">4.</span> <span class="nav-text">Tokenizer Filter</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#转换"><span class="nav-number">4.1.</span> <span class="nav-text">转换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Lowercase-Token-Filter"><span class="nav-number">4.1.1.</span> <span class="nav-text">Lowercase Token Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Uppercase-Token-Filter"><span class="nav-number">4.1.2.</span> <span class="nav-text">Uppercase Token Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ASCII-Folding-Token-Filter"><span class="nav-number">4.1.3.</span> <span class="nav-text">ASCII Folding Token Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#词干提取器"><span class="nav-number">4.1.4.</span> <span class="nav-text">词干提取器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#过滤"><span class="nav-number">4.2.</span> <span class="nav-text">过滤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Length-Token-Filter"><span class="nav-number">4.2.1.</span> <span class="nav-text">Length Token Filter</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切割"><span class="nav-number">4.3.</span> <span class="nav-text">切割</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析"><span class="nav-number">4.4.</span> <span class="nav-text">分析</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -664,7 +668,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">44.3k</span>
+    <span title="Site words total count">46.1k</span>
   
 </div>
 
