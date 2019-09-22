@@ -64,12 +64,20 @@ POST asciifold_example/_analyze
 ```
 
 ### 词干提取器
+
+[词干提取器](http://langonggong.com/2019/09/21/%E8%AF%8D%E5%B9%B2%E6%8F%90%E5%8F%96%E5%99%A8/)将一个词提取为它的词根形式
 ## 过滤
 
 ### Length Token Filter
 长度过滤器。会移除token流中太长或太短的标记
 
 ## 切割
+
+### ngram
+
+[链接](https://www.elastic.co/guide/cn/elasticsearch/guide/current/_ngrams_for_partial_matching.html)
+朴素的n-gram对词语内部的匹配非常有用，但对于输入即搜索（search-as-you-type）这种应用场景，我们会使用一种特殊的n-gram称为边界n-grams（edge n-grams）
+
 
 ###滑动窗口
 使用 TF/IDF 的标准全文检索将文档或者文档中的字段作一大袋的词语处理。 match 查询可以告知我们这大袋子中是否包含查询的词条，但却无法告知词语之间的关系。
