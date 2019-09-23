@@ -16,8 +16,12 @@ comments: true
 
 ### Lowercase Token Filter
 小写过滤器。将标记token规范化为小写
+
 ### Uppercase Token Filter
 大写过滤器。将术语转写成大写
+
+### Synonym Token Filter
+同义词过滤器
 
 ### ASCII Folding Token Filter
 
@@ -66,12 +70,34 @@ POST asciifold_example/_analyze
 ### 词干提取器
 
 [词干提取器](http://langonggong.com/2019/09/21/%E8%AF%8D%E5%B9%B2%E6%8F%90%E5%8F%96%E5%99%A8/)将一个词提取为它的词根形式
+
+- Porter Stem Token Filter
+- Stemmer Token Filter：包含了大多数词干提取器
+- KStem Token Filter
+- Snowball Token Filter
 ## 过滤
 
 ### Length Token Filter
-长度过滤器。会移除token流中太长或太短的标记
+长度过滤器，会移除token流中太长或太短的标记
+
+### Stop Token Filter
+停用词过滤器，会移除自定义或指定文件中的停用词
+
+### Predicate Token Filter
+根据脚本里面的表达式来判断是否过滤掉某个词条，例如使用standard分析器后的"What Flapdoodle"分隔成两个词条，只保留长度大于5的词条，则"What"将被删除
 
 ## 切割
+
+### Word Delimiter Token Filter
+分隔符过滤器，根据一定的规则将单词分割为多个子字符串，或者删除单词中的分隔符。例如：
+
+- generate_word_parts
+	"Power-Shot", "(Power,Shot)" -> "Power" "Shot"
+- generate_number_parts
+	将数字拆出来："500-42" -> "500" "42"
+- catenate_words
+	将单词去掉分隔符后合并："wi-fi" -> "wifi"
+- 其他
 
 ### Edge NGram Token Filter
 n-gram 看成一个在词语上 滑动窗口 ， n 代表这个 “窗口” 的长度。如果我们要 n-gram quick 这个词 —— 它的结果取决于 n 的选择长度：
@@ -217,7 +243,7 @@ name:brown name:fo
 ```
 再次执行查询就能正确返回 Brown foxes 这个文档。
 
-###滑动窗口
+###Shingle Token Filter（滑动窗口）
 使用 TF/IDF 的标准全文检索将文档或者文档中的字段作一大袋的词语处理。 match 查询可以告知我们这大袋子中是否包含查询的词条，但却无法告知词语之间的关系。
 
 思考下面这几个句子的不同：
@@ -423,4 +449,84 @@ GET /shingle_index/_doc/_search
     ]
 }
 ```
-## 分析
+## 流程
+
+### Conditional Token Filter
+根据表达式条件决定是否使用某个其他的过滤器，例如根据一个词条中字符的个数来判断是否要使用Lowercase Token Filter过滤器
+
+### Keyword Marker Token Filter
+保护某些单词不被stemmers（词干提取器）处理，可以自定义单词列表或者指定文件路径
+
+### Keyword Repeat Token Filter
+将每个输入的token复制，生成keyword和non-keyword两个。一般用于交给词干提取器处理，然后去重处理
+
+```
+PUT /keyword_repeat_example
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "stemmed_and_unstemmed": {
+          "type": "custom",
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase",
+            "keyword_repeat",
+            "porter_stem",
+            "unique_stem"
+          ]
+        }
+      },
+      "filter": {
+        "unique_stem": {
+          "type": "unique",
+          "only_on_same_position": true
+        }
+      }
+    }
+  }
+}
+```
+测试用例如下：
+```
+POST /keyword_repeat_example/_analyze
+{
+  "analyzer": "stemmed_and_unstemmed",
+  "text": "I like cats"
+}
+```
+结果如下：
+```
+{
+  "tokens" : [
+    {
+      "token" : "i",
+      "start_offset" : 0,
+      "end_offset" : 1,
+      "type" : "<ALPHANUM>",
+      "position" : 0
+    },
+    {
+      "token" : "like",
+      "start_offset" : 2,
+      "end_offset" : 6,
+      "type" : "<ALPHANUM>",
+      "position" : 1
+    },
+    {
+      "token" : "cats",
+      "start_offset" : 7,
+      "end_offset" : 11,
+      "type" : "<ALPHANUM>",
+      "position" : 2
+    },
+    {
+      "token" : "cat",
+      "start_offset" : 7,
+      "end_offset" : 11,
+      "type" : "<ALPHANUM>",
+      "position" : 2
+    }
+  ]
+}
+```
