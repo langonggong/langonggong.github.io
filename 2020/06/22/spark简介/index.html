@@ -97,7 +97,7 @@
 <meta property="og:image" content="http://langonggong.com/images/spark-lineage.png">
 <meta property="og:image" content="http://langonggong.com/images/spark-dependency.png">
 <meta property="og:image" content="http://langonggong.com/images/spark-stage.png">
-<meta property="og:updated_time" content="2020-06-22T16:40:36.960Z">
+<meta property="og:updated_time" content="2020-06-22T16:46:30.308Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="spark简介">
 <meta name="twitter:description" content="spark简介">
@@ -362,7 +362,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  5,300
+                  5,299
                 </span>
               
 
@@ -447,10 +447,8 @@
 </ul>
 <p><strong>Application</strong><br>用户使用 Spark API 编写的的应用程序，其中包括一个 Driver 功能的代码和分布在集群中多个节点上运行的 Executor 代码。<br>Application 通过 Spark API 创建 RDD，对 RDD 进行转换，创建 DAG，并通过 Driver 将 Application 注册到 Cluster Master。</p>
 <h1 id="运行流程"><a href="#运行流程" class="headerlink" title="运行流程"></a>运行流程</h1><p><img src="/images/spark-run.png"></p>
-<ol>
-<li>构建Spark Application的运行环境，启动SparkContext</li>
-</ol>
 <ul>
+<li>构建Spark Application的运行环境，启动SparkContext</li>
 <li>SparkContext向资源管理器（可以是Standalone，Mesos，Yarn）申请运行Executor资源，并启动StandaloneExecutorbackend，</li>
 <li>Executor向SparkContext申请Task</li>
 <li>SparkContext将应用程序分发给Executor</li>
