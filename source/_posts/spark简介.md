@@ -80,7 +80,7 @@ Application 通过 Spark API 创建 RDD，对 RDD 进行转换，创建 DAG，�
 
 <img src="/images/spark-run.png">
 
-1. 构建Spark Application的运行环境，启动SparkContext
+- 构建Spark Application的运行环境，启动SparkContext
 - SparkContext向资源管理器（可以是Standalone，Mesos，Yarn）申请运行Executor资源，并启动StandaloneExecutorbackend，
 - Executor向SparkContext申请Task
 - SparkContext将应用程序分发给Executor
