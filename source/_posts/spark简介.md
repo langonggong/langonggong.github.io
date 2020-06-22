@@ -183,7 +183,7 @@ RDD 的转换操作是返回新的 RDD 的操作。转换出来的 RDD 是惰性
 |fold(zero)(func)|和 reduce() 功能一样，但需要提供初始值|rdd.fold(0)((x,y)=>x+y)|9|
 |foreach(func)|对 RDD 的每个元素都使用特定函数|rdd1.foreach(x=>printIn(x))|打印每一个元素|
 |saveAsTextFile(path)|将数据集的元素，以文本的形式保存到文件系统中|rdd1.saveAsTextFile(file://home/test)||
-|saveAsSequenceFile(path) |将数据集的元素，以顺序文件格式保存到指 定的目录下|saveAsSequenceFile(hdfs://home/test)||
+|saveAsSequenceFile(path) |将数据集的元素，以顺序文件格式保存到指 定的目录下|saveAsSequenceFile(hdfs://home/test)| |
 
 
  aggregate() 函数的返回类型不需要和 RDD 中的元素类型一致，所以在使用时，需要提供所期待的返回类型的初始值，然后通过一个函数把 RDD 中的元素累加起来放入累加器。
