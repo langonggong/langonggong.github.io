@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Elasticsearch" />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="武汉旭神" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="ES分析器，由字符过滤器、分词器、分词过滤器组成">
+<meta name="keywords" content="Elasticsearch">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ES分析器">
+<meta property="og:url" content="http://langonggong.com/2019/09/15/ES分析器/index.html">
+<meta property="og:site_name" content="武汉旭神">
+<meta property="og:description" content="ES分析器，由字符过滤器、分词器、分词过滤器组成">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-06-20T13:03:56.804Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ES分析器">
+<meta name="twitter:description" content="ES分析器，由字符过滤器、分词器、分词过滤器组成">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://langonggong.com/2019/09/15/ES分析器/"/>
+
+
+
+
+
+  <title>ES分析器 | 武汉旭神</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">武汉旭神</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">路漫漫其修远兮，吾将上下而求索</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://langonggong.com/2019/09/15/ES分析器/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="lanxu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="武汉旭神">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ES分析器</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-09-15T01:09:03+08:00">
+                2019-09-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Elasticsearch/" itemprop="url" rel="index">
+                    <span itemprop="name">Elasticsearch</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv"><i class="fa fa-file-o"></i>
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>
+            </span>
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Words count in article&#58;</span>
+                
+                <span title="Words count in article">
+                  2,481
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Reading time &asymp;</span>
+                
+                <span title="Reading time">
+                  11
+                </span>
+              
+            </div>
+          
+
+          
+              <div class="post-description">
+                  ES分析器，由字符过滤器、分词器、分词过滤器组成
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="分析器"><a href="#分析器" class="headerlink" title="分析器"></a>分析器</h1><h1 id="CharFilter"><a href="#CharFilter" class="headerlink" title="CharFilter"></a>CharFilter</h1><h1 id="Tokenizer"><a href="#Tokenizer" class="headerlink" title="Tokenizer"></a>Tokenizer</h1><h1 id="Tokenizer-Filter"><a href="#Tokenizer-Filter" class="headerlink" title="Tokenizer Filter"></a>Tokenizer Filter</h1><h2 id="转换"><a href="#转换" class="headerlink" title="转换"></a>转换</h2><h3 id="Lowercase-Token-Filter"><a href="#Lowercase-Token-Filter" class="headerlink" title="Lowercase Token Filter"></a>Lowercase Token Filter</h3><p>小写过滤器。将标记token规范化为小写</p>
+<h3 id="Uppercase-Token-Filter"><a href="#Uppercase-Token-Filter" class="headerlink" title="Uppercase Token Filter"></a>Uppercase Token Filter</h3><p>大写过滤器。将术语转写成大写</p>
+<h3 id="Synonym-Token-Filter"><a href="#Synonym-Token-Filter" class="headerlink" title="Synonym Token Filter"></a>Synonym Token Filter</h3><p>同义词过滤器</p>
+<h3 id="ASCII-Folding-Token-Filter"><a href="#ASCII-Folding-Token-Filter" class="headerlink" title="ASCII Folding Token Filter"></a>ASCII Folding Token Filter</h3><p>ASCII码折叠过滤器。asciifolding过滤器将ASCII码不在ASCII表前127内的字母、数字和Unicode符号转换为ASCII等效字符(如果存在的话)</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">//新建索引</span><br><span class="line">PUT asciifold_example</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"settings"</span>: &#123;</span><br><span class="line">        <span class="string">"analysis"</span>: &#123;</span><br><span class="line">            <span class="string">"analyzer"</span>: &#123;</span><br><span class="line">                <span class="string">"my_analyzer"</span>: &#123;</span><br><span class="line">                    <span class="string">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">                    <span class="string">"filter"</span>: [</span><br><span class="line">                        <span class="string">"my_ascii_folding"</span></span><br><span class="line">                    ]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"filter"</span>: &#123;</span><br><span class="line">                <span class="string">"my_ascii_folding"</span>: &#123;</span><br><span class="line">                    <span class="string">"type"</span>: <span class="string">"asciifolding"</span>,</span><br><span class="line">                    <span class="string">"preserve_original"</span>: false</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//提交文本</span></span><br><span class="line">POST asciifold_example/_analyze</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"analyzer"</span>: <span class="string">"my_analyzer"</span>,</span><br><span class="line">    <span class="string">"text"</span>: <span class="string">"Êê Ẑẑ Ĉĉ Ŝŝ Ŋŋ Öö"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//获取结果</span></span><br><span class="line">[<span class="meta">Ee,Zz,Cc,Ss,Nn,Oo</span>]</span><br></pre></td></tr></table></figure>
+<h3 id="词干提取器"><a href="#词干提取器" class="headerlink" title="词干提取器"></a>词干提取器</h3><p><a href="http://langonggong.com/2019/09/21/%E8%AF%8D%E5%B9%B2%E6%8F%90%E5%8F%96%E5%99%A8/">词干提取器</a>将一个词提取为它的词根形式</p>
+<ul>
+<li>Porter Stem Token Filter</li>
+<li>Stemmer Token Filter：包含了大多数词干提取器</li>
+<li>KStem Token Filter</li>
+<li>Snowball Token Filter<h2 id="过滤"><a href="#过滤" class="headerlink" title="过滤"></a>过滤</h2></li>
+</ul>
+<h3 id="Length-Token-Filter"><a href="#Length-Token-Filter" class="headerlink" title="Length Token Filter"></a>Length Token Filter</h3><p>长度过滤器，会移除token流中太长或太短的标记</p>
+<h3 id="Stop-Token-Filter"><a href="#Stop-Token-Filter" class="headerlink" title="Stop Token Filter"></a>Stop Token Filter</h3><p>停用词过滤器，会移除自定义或指定文件中的停用词</p>
+<h3 id="Predicate-Token-Filter"><a href="#Predicate-Token-Filter" class="headerlink" title="Predicate Token Filter"></a>Predicate Token Filter</h3><p>根据脚本里面的表达式来判断是否过滤掉某个词条，例如使用standard分析器后的”What Flapdoodle”分隔成两个词条，只保留长度大于5的词条，则”What”将被删除</p>
+<h2 id="切割"><a href="#切割" class="headerlink" title="切割"></a>切割</h2><h3 id="Word-Delimiter-Token-Filter"><a href="#Word-Delimiter-Token-Filter" class="headerlink" title="Word Delimiter Token Filter"></a>Word Delimiter Token Filter</h3><p>分隔符过滤器，根据一定的规则将单词分割为多个子字符串，或者删除单词中的分隔符。例如：</p>
+<ul>
+<li>generate_word_parts<br>  “Power-Shot”, “(Power,Shot)” -&gt; “Power” “Shot”</li>
+<li>generate_number_parts<br>  将数字拆出来：”500-42” -&gt; “500” “42”</li>
+<li>catenate_words<br>  将单词去掉分隔符后合并：”wi-fi” -&gt; “wifi”</li>
+<li>其他</li>
+</ul>
+<h3 id="Edge-NGram-Token-Filter"><a href="#Edge-NGram-Token-Filter" class="headerlink" title="Edge NGram Token Filter"></a>Edge NGram Token Filter</h3><p>n-gram 看成一个在词语上 滑动窗口 ， n 代表这个 “窗口” 的长度。如果我们要 n-gram quick 这个词 —— 它的结果取决于 n 的选择长度：</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">长度 <span class="number">1</span>（unigram）： 	<span class="string">[ q, u, i, c, k ]</span></span><br><span class="line">长度 <span class="number">2</span>（bigram）： 	<span class="string">[ qu, ui, ic, ck ]</span></span><br><span class="line">长度 <span class="number">3</span>（trigram）： 	<span class="string">[ qui, uic, ick ]</span></span><br><span class="line">长度 <span class="number">4</span>（four-gram）：	<span class="string">[ quic, uick ]</span></span><br><span class="line">长度 <span class="number">5</span>（five-gram）：	<span class="string">[ quick ]</span></span><br></pre></td></tr></table></figure>
+<p>朴素的n-gram对词语内部的匹配非常有用，即在 <a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/ngrams-compound-words.html" target="_blank" rel="noopener">Ngram匹配复合词</a> 介绍的那样。但对于输入即搜索（search-as-you-type）这种应用场景，我们会使用一种特殊的n-gram称为边界n-grams（edge n-grams）。所谓的边界n-gram是说它会固定词语开始的一边，以单词quick为例，它的边界n-gram的结果为：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[q,qu,qui,quic,quick]</span><br></pre></td></tr></table></figure>
+<p>创建索引、实例化 token 过滤器和分析器的完整示例如下</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"settings"</span>: &#123;</span><br><span class="line">        <span class="string">"number_of_shards"</span>: <span class="number">1</span>, </span><br><span class="line">        <span class="string">"analysis"</span>: &#123;</span><br><span class="line">            <span class="string">"filter"</span>: &#123;</span><br><span class="line">                <span class="string">"autocomplete_filter"</span>: &#123; </span><br><span class="line">                    <span class="string">"type"</span>:     <span class="string">"edge_ngram"</span>,</span><br><span class="line">                    <span class="string">"min_gram"</span>: <span class="number">1</span>,</span><br><span class="line">                    <span class="string">"max_gram"</span>: <span class="number">20</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="string">"analyzer"</span>: &#123;</span><br><span class="line">                <span class="string">"autocomplete"</span>: &#123;</span><br><span class="line">                    <span class="string">"type"</span>:      <span class="string">"custom"</span>,</span><br><span class="line">                    <span class="string">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">                    <span class="string">"filter"</span>: [</span><br><span class="line">                        <span class="string">"lowercase"</span>,</span><br><span class="line">                        <span class="string">"autocomplete_filter"</span> </span><br><span class="line">                    ]</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以拿 analyze API 测试这个新的分析器确保它行为正确：</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="builtin-name">GET</span> /my_index/_analyze</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"text"</span>: <span class="string">"quick brown"</span>,</span><br><span class="line">  <span class="string">"analyzer"</span>: <span class="string">"autocomplete"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>结果表明分析器能正确工作，并返回以下词：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[q,qu,qui,quic,quick,b,br,bro,brow,brown]</span><br></pre></td></tr></table></figure>
+<p>可以用 update-mapping API 将这个分析器应用到具体字段并添加数据</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/_mapping/</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"properties"</span>: &#123;</span><br><span class="line">    <span class="string">"name"</span>: &#123;</span><br><span class="line">      <span class="string">"type"</span>: <span class="string">"text"</span>,</span><br><span class="line">      <span class="string">"analyzer"</span>: <span class="string">"autocomplete"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">POST /my_index/_bulk</span><br><span class="line">&#123;<span class="string">"index"</span>:&#123;<span class="string">"_id"</span>:<span class="number">1</span>&#125;&#125;</span><br><span class="line">&#123;<span class="string">"name"</span>:<span class="string">"Brown foxes"</span>&#125;</span><br><span class="line">&#123;<span class="string">"index"</span>:&#123;<span class="string">"_id"</span>:<span class="number">2</span>&#125;&#125;</span><br><span class="line">&#123;<span class="string">"name"</span>:<span class="string">"Yellow furballs"</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>如果使用简单 match 查询测试查询 “brown fo” ,可以看到两个文档同时都能匹配，尽管 Yellow furballs 这个文档并不包含 brown 和 fo</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/_validate/query?explain</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"query"</span>: &#123;</span><br><span class="line">        <span class="string">"match"</span>: &#123;</span><br><span class="line">            <span class="string">"name"</span>: <span class="string">"brown fo"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用validate-query API 分析：</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/_validate/query?explain</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>: &#123;</span><br><span class="line">    <span class="string">"match"</span>: &#123;</span><br><span class="line">      <span class="string">"name"</span>: <span class="string">"brown fo"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>explanation 表明查询会查找边界 n-grams 里的每个词：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">name</span>:b <span class="built_in">name</span>:br <span class="built_in">name</span>:bro <span class="built_in">name</span>:brow <span class="built_in">name</span>:brown <span class="built_in">name</span>:f <span class="built_in">name</span>:fo</span><br></pre></td></tr></table></figure>
+<p>name:f 条件可以满足第二个文档</p>
+<p>我们需要保证倒排索引表中包含边界 n-grams 的每个词，但是我们只想匹配用户输入的完整词组（ brown 和 fo ）， 可以通过在索引时使用 autocomplete 分析器，并在搜索时使用 standard 标准分析器来实现这种想法，只要改变查询使用的搜索分析器 analyzer 参数即可：</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">GET /my_index/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>: &#123;</span><br><span class="line">    <span class="string">"match"</span>: &#123;</span><br><span class="line">      <span class="string">"name"</span>: &#123;</span><br><span class="line">        <span class="string">"query"</span>: <span class="string">"brown fo"</span>,</span><br><span class="line">        <span class="string">"analyzer"</span>: <span class="string">"standard"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>换种方式，我们可以在映射中，为name字段分别指定index_analyzer和 earch_analyzer。因为我们只想改变 search_analyzer，这里只要更新现有的映射而不用对数据重新创建索引：</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">PUT /my_index/_mapping</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"properties"</span>: &#123;</span><br><span class="line">    <span class="string">"name"</span>: &#123;</span><br><span class="line">      <span class="string">"type"</span>: <span class="string">"text"</span>,</span><br><span class="line">      <span class="string">"analyzer"</span>: <span class="string">"autocomplete"</span>,</span><br><span class="line">      <span class="string">"search_analyzer"</span>: <span class="string">"standard"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果再次请求 validate-query API ，当前的解释为：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">name</span>:brown <span class="built_in">name</span>:fo</span><br></pre></td></tr></table></figure>
+<p>再次执行查询就能正确返回 Brown foxes 这个文档。</p>
+<h3 id="Shingle-Token-Filter（滑动窗口）"><a href="#Shingle-Token-Filter（滑动窗口）" class="headerlink" title="Shingle Token Filter（滑动窗口）"></a>Shingle Token Filter（滑动窗口）</h3><p>使用 TF/IDF 的标准全文检索将文档或者文档中的字段作一大袋的词语处理。 match 查询可以告知我们这大袋子中是否包含查询的词条，但却无法告知词语之间的关系。</p>
+<p>思考下面这几个句子的不同：</p>
+<ul>
+<li>Sue ate the alligator.</li>
+<li>The alligator ate Sue.</li>
+<li>Sue never goes anywhere without her alligator-skin purse.</li>
+</ul>
+<p>用match搜索sue alligator上面的三个文档都会得到匹配，但它却不能确定这两个词是否只来自于一种语境，甚至都不能确定是否来自于同一个段落。</p>
+<p>理解分词之间的关系是一个复杂的难题，我们也无法通过换一种查询方式去解决。但我们至少可以通过出现在彼此附近或者仅仅是彼此相邻的分词来判断一些似乎相关的分词。</p>
+<p>对句子Sue ate the alligator ，不仅要将每一个单词（或者 unigram ）作为词项索引<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">"sue"</span>, <span class="string">"ate"</span>, <span class="string">"the"</span>, <span class="string">"alligator"</span>]</span><br></pre></td></tr></table></figure></p>
+<p>也要将每个单词以及它的邻近词作为单个词项索引：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">"sue ate"</span>, <span class="string">"ate the"</span>, <span class="string">"the alligator"</span>]</span><br></pre></td></tr></table></figure></p>
+<p>这些单词对（或者 bigrams ）被称为 shingles 。<br>你也可以索引三个单词（ trigrams ）。Trigrams 提供了更高的精度，但是也大大增加了索引中唯一词项的数量。在大多数情况下，Bigrams 就够了。<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">"sue ate the"</span>, <span class="string">"ate the alligator"</span>]</span><br></pre></td></tr></table></figure></p>
+<p>只有当用户输入的查询内容和在原始文档中顺序相同时，shingles 才是有用的；对 sue alligator 的查询可能会匹配到单个单词，但是不会匹配任何 shingles 。只是索引 bigrams 是不够的；我们仍然需要 unigrams ，但可以将匹配 bigrams 作为增加相关度评分的信号。</p>
+<p>将它们分开保存在能被独立查询的字段会更清晰：<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">PUT /shingle_index</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"settings"</span>: &#123;</span><br><span class="line">    <span class="string">"number_of_shards"</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="string">"analysis"</span>: &#123;</span><br><span class="line">      <span class="string">"filter"</span>: &#123;</span><br><span class="line">        <span class="string">"my_shingle_filter"</span>: &#123;</span><br><span class="line">          <span class="string">"type"</span>: <span class="string">"shingle"</span>,</span><br><span class="line">          <span class="string">"min_shingle_size"</span>: <span class="number">2</span>,</span><br><span class="line">          <span class="string">"max_shingle_size"</span>: <span class="number">2</span>,</span><br><span class="line">          <span class="string">"output_unigrams"</span>: false</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="string">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="string">"my_shingle_analyzer"</span>: &#123;</span><br><span class="line">          <span class="string">"type"</span>: <span class="string">"custom"</span>,</span><br><span class="line">          <span class="string">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">          <span class="string">"filter"</span>: [</span><br><span class="line">            <span class="string">"lowercase"</span>,</span><br><span class="line">            <span class="string">"my_shingle_filter"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>用 analyze API 测试下分析器：<br><figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="builtin-name">GET</span> /shingle_index/_analyze</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"analyzer"</span>: <span class="string">"my_shingle_analyzer"</span>,</span><br><span class="line">  <span class="string">"text"</span>: <span class="string">"Sue ate the alligator"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>得到了 3 个词项：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[<span class="string">"sue ate"</span>, <span class="string">"ate the"</span>, <span class="string">"the alligator"</span>]</span><br></pre></td></tr></table></figure></p>
+<p>将unigrams和bigrams分开索引更清晰，所以title字段将创建成一个多字段：<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">PUT /shingle_index/_mapping/</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"properties"</span>: &#123;</span><br><span class="line">    <span class="string">"title"</span>: &#123;</span><br><span class="line">      <span class="string">"type"</span>: <span class="string">"text"</span>,</span><br><span class="line">      <span class="string">"fields"</span>: &#123;</span><br><span class="line">        <span class="string">"shingles"</span>: &#123;</span><br><span class="line">          <span class="string">"type"</span>: <span class="string">"text"</span>,</span><br><span class="line">          <span class="string">"analyzer"</span>: <span class="string">"my_shingle_analyzer"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>索引以下示例文档：<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /shingle_index/_doc/_bulk</span><br><span class="line">&#123;<span class="string">"index"</span>:&#123;<span class="string">"_id"</span>:<span class="number">1</span>&#125;&#125;</span><br><span class="line">&#123;<span class="string">"title"</span>:<span class="string">"Sue ate the alligator"</span>&#125;</span><br><span class="line">&#123;<span class="string">"index"</span>:&#123;<span class="string">"_id"</span>:<span class="number">2</span>&#125;&#125;</span><br><span class="line">&#123;<span class="string">"title"</span>:<span class="string">"The alligator ate Sue"</span>&#125;</span><br><span class="line">&#123;<span class="string">"index"</span>:&#123;<span class="string">"_id"</span>:<span class="number">3</span>&#125;&#125;</span><br><span class="line">&#123;<span class="string">"title"</span>:<span class="string">"Sue never goes anywhere without her alligator skin purse"</span>&#125;</span><br></pre></td></tr></table></figure></p>
+<p>使用The hungry alligator ate Sue 进行简单 match 查询：<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">GET /shingle_index/_doc/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>: &#123;</span><br><span class="line">    <span class="string">"match"</span>: &#123;</span><br><span class="line">      <span class="string">"title"</span>: <span class="string">"the hungry alligator ate sue"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这个查询返回了所有的三个文档， 但是注意文档 1 和 2 有相同的相关度评分因为他们包含了相同的单词：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"total"</span>: &#123;</span><br><span class="line">        <span class="attr">"value"</span>: <span class="number">3</span>,</span><br><span class="line">        <span class="attr">"relation"</span>: <span class="string">"eq"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"max_score"</span>: <span class="number">1.3721708</span>,</span><br><span class="line">    <span class="attr">"hits"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"shingle_index"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"_doc"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"1"</span>,</span><br><span class="line">            <span class="attr">"_score"</span>: <span class="number">1.3721708</span>,</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">                <span class="attr">"title"</span>: <span class="string">"Sue ate the alligator"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"shingle_index"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"_doc"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"2"</span>,</span><br><span class="line">            <span class="attr">"_score"</span>: <span class="number">1.3721708</span>,</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">                <span class="attr">"title"</span>: <span class="string">"The alligator ate Sue"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"shingle_index"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"_doc"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"3"</span>,</span><br><span class="line">            <span class="attr">"_score"</span>: <span class="number">0.2152618</span>,</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">                <span class="attr">"title"</span>: <span class="string">"Sue never goes anywhere without her alligator skin purse"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>现在在查询里添加 shingles 字段，为了提高相关度评分，我们仍然需要将基本title字段包含到查询中：<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">GET /shingle_index/_doc/_search</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"query"</span>: &#123;</span><br><span class="line">    <span class="string">"bool"</span>: &#123;</span><br><span class="line">      <span class="string">"must"</span>: &#123;</span><br><span class="line">        <span class="string">"match"</span>: &#123;</span><br><span class="line">          <span class="string">"title"</span>: <span class="string">"the hungry alligator ate sue"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="string">"should"</span>: &#123;</span><br><span class="line">        <span class="string">"match"</span>: &#123;</span><br><span class="line">          <span class="string">"title.shingles"</span>: <span class="string">"the hungry alligator ate sue"</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>仍然匹配到了所有的 3 个文档， 但是文档 2 现在排到了第一名因为它匹配了 shingled 词项 ate sue：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"total"</span>: &#123;</span><br><span class="line">        <span class="attr">"value"</span>: <span class="number">3</span>,</span><br><span class="line">        <span class="attr">"relation"</span>: <span class="string">"eq"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"max_score"</span>: <span class="number">3.6694741</span>,</span><br><span class="line">    <span class="attr">"hits"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"shingle_index"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"_doc"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"2"</span>,</span><br><span class="line">            <span class="attr">"_score"</span>: <span class="number">3.6694741</span>,</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">                <span class="attr">"title"</span>: <span class="string">"The alligator ate Sue"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"shingle_index"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"_doc"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"1"</span>,</span><br><span class="line">            <span class="attr">"_score"</span>: <span class="number">1.3721708</span>,</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">                <span class="attr">"title"</span>: <span class="string">"Sue ate the alligator"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="attr">"_index"</span>: <span class="string">"shingle_index"</span>,</span><br><span class="line">            <span class="attr">"_type"</span>: <span class="string">"_doc"</span>,</span><br><span class="line">            <span class="attr">"_id"</span>: <span class="string">"3"</span>,</span><br><span class="line">            <span class="attr">"_score"</span>: <span class="number">0.2152618</span>,</span><br><span class="line">            <span class="attr">"_source"</span>: &#123;</span><br><span class="line">                <span class="attr">"title"</span>: <span class="string">"Sue never goes anywhere without her alligator skin purse"</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h2><h3 id="Conditional-Token-Filter"><a href="#Conditional-Token-Filter" class="headerlink" title="Conditional Token Filter"></a>Conditional Token Filter</h3><p>根据表达式条件决定是否使用某个其他的过滤器，例如根据一个词条中字符的个数来判断是否要使用Lowercase Token Filter过滤器</p>
+<h3 id="Keyword-Marker-Token-Filter"><a href="#Keyword-Marker-Token-Filter" class="headerlink" title="Keyword Marker Token Filter"></a>Keyword Marker Token Filter</h3><p>保护某些单词不被stemmers（词干提取器）处理，可以自定义单词列表或者指定文件路径</p>
+<h3 id="Keyword-Repeat-Token-Filter"><a href="#Keyword-Repeat-Token-Filter" class="headerlink" title="Keyword Repeat Token Filter"></a>Keyword Repeat Token Filter</h3><p>将每个输入的token复制，生成keyword和non-keyword两个。一般用于交给词干提取器处理，然后去重处理</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">PUT /keyword_repeat_example</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"settings"</span>: &#123;</span><br><span class="line">    <span class="string">"analysis"</span>: &#123;</span><br><span class="line">      <span class="string">"analyzer"</span>: &#123;</span><br><span class="line">        <span class="string">"stemmed_and_unstemmed"</span>: &#123;</span><br><span class="line">          <span class="string">"type"</span>: <span class="string">"custom"</span>,</span><br><span class="line">          <span class="string">"tokenizer"</span>: <span class="string">"standard"</span>,</span><br><span class="line">          <span class="string">"filter"</span>: [</span><br><span class="line">            <span class="string">"lowercase"</span>,</span><br><span class="line">            <span class="string">"keyword_repeat"</span>,</span><br><span class="line">            <span class="string">"porter_stem"</span>,</span><br><span class="line">            <span class="string">"unique_stem"</span></span><br><span class="line">          ]</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="string">"filter"</span>: &#123;</span><br><span class="line">        <span class="string">"unique_stem"</span>: &#123;</span><br><span class="line">          <span class="string">"type"</span>: <span class="string">"unique"</span>,</span><br><span class="line">          <span class="string">"only_on_same_position"</span>: true</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试用例如下：<br><figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">POST <span class="regexp">/keyword_repeat_example/</span>_analyze</span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">"analyzer"</span>: <span class="string">"stemmed_and_unstemmed"</span>,</span><br><span class="line">  <span class="string">"text"</span>: <span class="string">"I like cats"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>结果如下：<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"tokens"</span> : [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"token"</span> : <span class="string">"i"</span>,</span><br><span class="line">      <span class="attr">"start_offset"</span> : <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"end_offset"</span> : <span class="number">1</span>,</span><br><span class="line">      <span class="attr">"type"</span> : <span class="string">"&lt;ALPHANUM&gt;"</span>,</span><br><span class="line">      <span class="attr">"position"</span> : <span class="number">0</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"token"</span> : <span class="string">"like"</span>,</span><br><span class="line">      <span class="attr">"start_offset"</span> : <span class="number">2</span>,</span><br><span class="line">      <span class="attr">"end_offset"</span> : <span class="number">6</span>,</span><br><span class="line">      <span class="attr">"type"</span> : <span class="string">"&lt;ALPHANUM&gt;"</span>,</span><br><span class="line">      <span class="attr">"position"</span> : <span class="number">1</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"token"</span> : <span class="string">"cats"</span>,</span><br><span class="line">      <span class="attr">"start_offset"</span> : <span class="number">7</span>,</span><br><span class="line">      <span class="attr">"end_offset"</span> : <span class="number">11</span>,</span><br><span class="line">      <span class="attr">"type"</span> : <span class="string">"&lt;ALPHANUM&gt;"</span>,</span><br><span class="line">      <span class="attr">"position"</span> : <span class="number">2</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"token"</span> : <span class="string">"cat"</span>,</span><br><span class="line">      <span class="attr">"start_offset"</span> : <span class="number">7</span>,</span><br><span class="line">      <span class="attr">"end_offset"</span> : <span class="number">11</span>,</span><br><span class="line">      <span class="attr">"type"</span> : <span class="string">"&lt;ALPHANUM&gt;"</span>,</span><br><span class="line">      <span class="attr">"position"</span> : <span class="number">2</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>Donate</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.png" alt="lanxu WeChat Pay"/>
+        <p>WeChat Pay</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt="lanxu Alipay"/>
+        <p>Alipay</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Elasticsearch/" rel="tag"><i class="fa fa-tag"></i> Elasticsearch</a>
+          
+            <a href="/tags/分析器/" rel="tag"><i class="fa fa-tag"></i> 分析器</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/01/synchronized的内存语义/" rel="next" title="synchronized的内存语义">
+                <i class="fa fa-chevron-left"></i> synchronized的内存语义
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/09/21/词干提取器/" rel="prev" title="词干提取器">
+                词干提取器 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zOTAxNy8xNTU0NA"></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">lanxu</p>
+              <p class="site-description motion-element" itemprop="description">个人博客</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">61</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">44</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/langonggong" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:2462369896@qq.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#分析器"><span class="nav-number">1.</span> <span class="nav-text">分析器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CharFilter"><span class="nav-number">2.</span> <span class="nav-text">CharFilter</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Tokenizer"><span class="nav-number">3.</span> <span class="nav-text">Tokenizer</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Tokenizer-Filter"><span class="nav-number">4.</span> <span class="nav-text">Tokenizer Filter</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#转换"><span class="nav-number">4.1.</span> <span class="nav-text">转换</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Lowercase-Token-Filter"><span class="nav-number">4.1.1.</span> <span class="nav-text">Lowercase Token Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Uppercase-Token-Filter"><span class="nav-number">4.1.2.</span> <span class="nav-text">Uppercase Token Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Synonym-Token-Filter"><span class="nav-number">4.1.3.</span> <span class="nav-text">Synonym Token Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ASCII-Folding-Token-Filter"><span class="nav-number">4.1.4.</span> <span class="nav-text">ASCII Folding Token Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#词干提取器"><span class="nav-number">4.1.5.</span> <span class="nav-text">词干提取器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#过滤"><span class="nav-number">4.2.</span> <span class="nav-text">过滤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Length-Token-Filter"><span class="nav-number">4.2.1.</span> <span class="nav-text">Length Token Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stop-Token-Filter"><span class="nav-number">4.2.2.</span> <span class="nav-text">Stop Token Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Predicate-Token-Filter"><span class="nav-number">4.2.3.</span> <span class="nav-text">Predicate Token Filter</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#切割"><span class="nav-number">4.3.</span> <span class="nav-text">切割</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Word-Delimiter-Token-Filter"><span class="nav-number">4.3.1.</span> <span class="nav-text">Word Delimiter Token Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Edge-NGram-Token-Filter"><span class="nav-number">4.3.2.</span> <span class="nav-text">Edge NGram Token Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Shingle-Token-Filter（滑动窗口）"><span class="nav-number">4.3.3.</span> <span class="nav-text">Shingle Token Filter（滑动窗口）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#流程"><span class="nav-number">4.4.</span> <span class="nav-text">流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Conditional-Token-Filter"><span class="nav-number">4.4.1.</span> <span class="nav-text">Conditional Token Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Keyword-Marker-Token-Filter"><span class="nav-number">4.4.2.</span> <span class="nav-text">Keyword Marker Token Filter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Keyword-Repeat-Token-Filter"><span class="nav-number">4.4.3.</span> <span class="nav-text">Keyword Repeat Token Filter</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">lanxu</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">59.6k</span>
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      <i class="fa fa-user"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      
+    </span>
+  
+
+  
+    <span class="site-pv">
+      <i class="fa fa-eye"></i>
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/canvas_sphere.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
