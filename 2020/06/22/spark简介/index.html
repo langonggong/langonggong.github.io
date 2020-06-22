@@ -97,7 +97,7 @@
 <meta property="og:image" content="http://langonggong.com/images/spark-lineage.png">
 <meta property="og:image" content="http://langonggong.com/images/spark-dependency.png">
 <meta property="og:image" content="http://langonggong.com/images/spark-stage.png">
-<meta property="og:updated_time" content="2020-06-22T15:51:52.545Z">
+<meta property="og:updated_time" content="2020-06-22T16:40:36.960Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="spark简介">
 <meta name="twitter:description" content="spark简介">
@@ -362,7 +362,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  5,302
+                  5,300
                 </span>
               
 
@@ -655,18 +655,14 @@
 <p><img src="/images/spark-dependency.png"></p>
 <p>join 操作有两种情况，如果 join 操作中使用的每个 Partition 仅仅和固定个 Partition 进行 join，则该 join 操作是窄依赖，其他情况下的 join 操作是宽依赖。</p>
 <p>所以可得出一个结论，窄依赖不仅包含一对一的窄依赖，还包含一对固定个数的窄依赖，也就是说，对父 RDD 依赖的 Partition 不会随着 RDD 数据规模的改变而改变。</p>
-<h3 id="窄依赖"><a href="#窄依赖" class="headerlink" title="窄依赖"></a>窄依赖</h3><ol>
+<h3 id="窄依赖"><a href="#窄依赖" class="headerlink" title="窄依赖"></a>窄依赖</h3><ul>
 <li>子 RDD 的每个分区依赖于常数个父分区（即与数据规模无关)。</li>
-</ol>
-<ul>
 <li>输入输出一对一的算子，且结果 RDD 的分区结构不变，如 map、flatMap。</li>
 <li>输入输出一对一的算子，但结果 RDD 的分区结构发生了变化，如 union。</li>
 <li>从输入中选择部分元素的算子，如 filter、distinct、subtract、sample。</li>
 </ul>
-<h3 id="宽依赖"><a href="#宽依赖" class="headerlink" title="宽依赖"></a>宽依赖</h3><ol>
+<h3 id="宽依赖"><a href="#宽依赖" class="headerlink" title="宽依赖"></a>宽依赖</h3><ul>
 <li>子 RDD 的每个分区依赖于所有父 RDD 分区。</li>
-</ol>
-<ul>
 <li>对单个 RDD 基于 Key 进行重组和 reduce，如 groupByKey、reduceByKey。</li>
 <li>对两个 RDD 基于 Key 进行 join 和重组，如 join。</li>
 </ul>
