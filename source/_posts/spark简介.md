@@ -126,7 +126,7 @@ RDD 的操作分为转化（Transformation）操作和行动（Action）操作�
 
 RDD 的操作是惰性的，当 RDD 执行转化操作的时候，实际计算并没有被执行，只有当 RDD 执行行动操作时才会促发计算任务提交，从而执行相应的计算操作。
 
-### 1. 构建操作
+### 构建操作
 
 Spark 里的计算都是通过操作 RDD 完成的，学习 RDD 的第一个问题就是如何构建 RDD，构建 RDD 的方式从数据来源角度分为以下两类。
 
@@ -147,7 +147,7 @@ val rdd:RDD[String] == sc.textFile("file:///D:/sparkdata.txt",1)
 
 这里例子使用的是本地文件系统，所以文件路径协议前缀是 file://。
 
-### 2. 转换操作
+### 转换操作
 
 RDD 的转换操作是返回新的 RDD 的操作。转换出来的 RDD 是惰性求值的，只有在行动操作中用到这些 RDD 时才会被计算。
 
@@ -167,7 +167,7 @@ RDD 的转换操作是返回新的 RDD 的操作。转换出来的 RDD 是惰性
 |cartesian()|求两个 RDD 的笛卡儿积 |rdd1.cartesian(rdd2)|{(1,3),(1,4)......(3,5)}|
 
 
-### 3. 行动操作
+### 行动操作
 行动操作用于执行计算并按指定的方式输出结果。行动操作接受 RDD，但是返回非 RDD，即输出一个值或者结果。在 RDD 执行过程中，真正的计算发生在行动操作。表 2 描述了常用的 RDD 行动操作。
 
 <center>表 2 RDD 行动操作（rdd={1,2,3,3}）</center>
@@ -242,14 +242,14 @@ map、filter、union 等操作是窄依赖，而 groupByKey、reduceByKey 等操
 join 操作有两种情况，如果 join 操作中使用的每个 Partition 仅仅和固定个 Partition 进行 join，则该 join 操作是窄依赖，其他情况下的 join 操作是宽依赖。
 
 所以可得出一个结论，窄依赖不仅包含一对一的窄依赖，还包含一对固定个数的窄依赖，也就是说，对父 RDD 依赖的 Partition 不会随着 RDD 数据规模的改变而改变。
-### 1. 窄依赖
+### 窄依赖
 
 1. 子 RDD 的每个分区依赖于常数个父分区（即与数据规模无关)。
 - 输入输出一对一的算子，且结果 RDD 的分区结构不变，如 map、flatMap。
 - 输入输出一对一的算子，但结果 RDD 的分区结构发生了变化，如 union。
 - 从输入中选择部分元素的算子，如 filter、distinct、subtract、sample。
 
-### 2. 宽依赖
+### 宽依赖
 
 1. 子 RDD 的每个分区依赖于所有父 RDD 分区。
 - 对单个 RDD 基于 Key 进行重组和 reduce，如 groupByKey、reduceByKey。
