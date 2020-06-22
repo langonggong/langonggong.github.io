@@ -244,14 +244,14 @@ join 操作有两种情况，如果 join 操作中使用的每个 Partition 仅�
 所以可得出一个结论，窄依赖不仅包含一对一的窄依赖，还包含一对固定个数的窄依赖，也就是说，对父 RDD 依赖的 Partition 不会随着 RDD 数据规模的改变而改变。
 ### 窄依赖
 
-1. 子 RDD 的每个分区依赖于常数个父分区（即与数据规模无关)。
+- 子 RDD 的每个分区依赖于常数个父分区（即与数据规模无关)。
 - 输入输出一对一的算子，且结果 RDD 的分区结构不变，如 map、flatMap。
 - 输入输出一对一的算子，但结果 RDD 的分区结构发生了变化，如 union。
 - 从输入中选择部分元素的算子，如 filter、distinct、subtract、sample。
 
 ### 宽依赖
 
-1. 子 RDD 的每个分区依赖于所有父 RDD 分区。
+- 子 RDD 的每个分区依赖于所有父 RDD 分区。
 - 对单个 RDD 基于 Key 进行重组和 reduce，如 groupByKey、reduceByKey。
 - 对两个 RDD 基于 Key 进行 join 和重组，如 join。
 
