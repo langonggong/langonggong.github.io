@@ -111,10 +111,10 @@ menu_icons:
 # ---------------------------------------------------------------
 
 # Schemes
-# scheme: Muse
+scheme: Muse
 # scheme: Mist
 # scheme: Pisces
-scheme: Gemini
+# scheme: Gemini
 
 use_motion: false # 关闭动画效果
 
