@@ -111,11 +111,12 @@ menu_icons:
 # ---------------------------------------------------------------
 
 # Schemes
-scheme: Muse
+# scheme: Muse
 # scheme: Mist
 # scheme: Pisces
-# scheme: Gemini
+scheme: Gemini
 
+use_motion: false # 关闭动画效果
 
 # ---------------------------------------------------------------
 # Sidebar Settings
@@ -704,7 +705,7 @@ three_waves: false
 canvas_lines: false
 
 # canvas_sphere
-canvas_sphere: true
+canvas_sphere: false
 
 # Only fit scheme Pisces
 # Canvas-ribbon
@@ -781,7 +782,7 @@ vendors:
 
   # three_waves
   # https://github.com/jjandxa/three_waves
-  three_waves:
+  three_waves: false
 
   # three_waves
   # https://github.com/jjandxa/canvas_lines
