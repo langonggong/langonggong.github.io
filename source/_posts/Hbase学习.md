@@ -115,6 +115,52 @@ HBase也采用了LSM-Tree的架构设计：LSM-Tree利用了传统机械硬盘�
 
 MemStore中用来存放所有的KeyValue的数据结构，核心是一个ConcurrentSkipListMap，我们知道，ConcurrentSkipListMap是Java的跳表实现，数据按照Key值有序存放，而且在高并发写入时，性能远高于ConcurrentHashMap。
 
+# 文件合并
+
+MemStore中的数据，达到一定的阈值，被Flush成HDFS中的HFile文件。
+
+HBase Compaction可以将一些HFile文件合并成较大的HFile文件，也可以把所有的HFile文件合并成一个大的HFile文件，这个过程可以理解为：将多个HFile的“交错无序状态”，变成单个HFile的“有序状态”，降低读取时延。小范围的HFile文件合并，称之为Minor Compaction，一个列族中将所有的HFile文件合并，称之为Major Compaction。
+
+<img src="/images/FlushAndCompaction.png">
+
+## Flush
+
+MemStore由一个可写的Segment，以及一个或多个不可写的Segments构成。
+<img src="/images/InMemoryFlush.png">
+MemStore中的数据先Flush成一个Immutable的Segment，多个Immutable Segments可以在内存中进行Compaction，当达到一定阈值以后才将内存中的数据持久化成HDFS中的HFile文件。
+
+***为什么不能调小MemStore的大小，多次写入HFile，减小内存开销？***
+如果MemStore中的数据被直接Flush成HFile，而多个HFile又被Compaction合并成了一个大HFile，随着一次次Compaction发生以后，一条数据往往被重写了多次，这带来显著的IO放大问题，另外，频繁的Compaction对IO资源的抢占，其实也是导致HBase查询时延大毛刺的罪魁祸首之一。
+
+***为何不直接调大MemStore的大小,减少Compaction的次数***
+ConcurrentSkipListMap在存储的数据量达到一定大小以后，写入性能将会出现显著的恶化。
+
+## Compaction
+
+***目的***
+
+- 减少HFile文件数量，减少文件句柄数量，降低读取时延
+- Major Compaction可以帮助清理集群中不再需要的数据（过期数据，被标记删除的数据，版本数溢出的数据）
+
+如果有多个HFiles文件，如果想基于RowKey读取一行数据，则需要查看多个文件，因为不同的HFile文件的RowKey Range可能是重叠的，此时，Compaction对于降低读取时延是非常必要的。
+
+很多HBase用户在集群中关闭了自动Major Compaction，为了降低Compaction对IO资源的抢占，但出于清理数据的需要，又不得不在一些非繁忙时段手动触发Major Compaction，这样既可以有效降低存储空间，也可以有效降低读取时延。
+
+***弊端***
+Compaction会导致写入放大
+```
+在Facebook Messages系统中，业务读写比为99:1，而最终反映到磁盘中，读写比却变为了36:64。
+WAL，HDFS Replication，Compaction以及Caching，共同导致了磁盘写IO的显著放大。
+```
+<img src="/images/write-amplification.png">
+随着不断的执行Minor Compaction以及Major Compaction，可以看到，这条数据被反复读取/写入了多次，这是导致写放大的一个关键原因，这里的写放大，涉及到网络IO与磁盘IO，因为数据在HDFS中默认有三个副本。
+
+而关于如何合理的执行Compaction，我们需要结合业务数据特点，不断的权衡如下两点：
+
+- 不能太少：避免因文件数不断增多导致读取时延出现明显增大
+- 不能太多：合理控制写入放大
+
+
 # 适用场景
 # Q&A
 
