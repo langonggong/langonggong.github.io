@@ -67,11 +67,41 @@ Region按大小分隔，每个表一般是只有一个region。随着数据不�
 - StoreFile
 	memStore内存中的数据写到文件后就是StoreFile，StoreFile底层是以HFile的格式保存。当storefile文件的数量增长到一定阈值后，系统会进行合并（minor、major compaction），在合并过程中会进行版本合并和删除工作（majar），形成更大的storefile。
 - HFile
-	HBase中KeyValue数据的存储格式，HFile是Hadoop的 二进制格式文件，实际上StoreFile就是对Hfile做了轻量级包装，即StoreFile底层就是HFile。
+	HBase中KeyValue数据的存储格式，HFile是Hadoop的 二进制格式文件，实际上StoreFile就是对Hfile做了轻量级包装，即StoreFile底层就是HFile。HFile数据文件存在于底层的HDFS中。
 - HLog
 	HLog(WAL log)：WAL意为write ahead log，用来做灾难恢复使用，HLog记录数据的所有变更，一旦region server 宕机，就可以从log中进行恢复。
 	
 # 写流程
+
+## 写入步骤
+
+- 客户端想RegionServer发送写入数据请求；
+- RegionServer先将数据写入HLog，即WAL，再讲数据写入MemStore；
+- 当MemStore中的数据达到阈值的时候，会将数据Flush到硬盘中，并同时清空内存和HLog中的历史数据；
+- 将硬盘中数据通过HFile来序列化，再讲数据传输到HDFS进行存储。并对HLog进行一次标记；
+- 当HFile数量到达一定值的时候，会进行compact操作，合并成一个大的HFile；
+- 如果一个region大小超过阈值时，会进行split操作，并将拆分后的region重新分配的不同的RegionServer进行管理；
+
+## 数据一致性
+
+***MVCC***
+写入流程中涉及到MVCC多版本协议控制协议，主要是hbase解决读写一致性的解决方案。MVCC变量是region级别的，每个region之间的mvcc是相互独立的。
+Hbase每次Put都会指定一个唯一ID，该ID是Region级递增的。每个Region得MVCC维护两个point：
+
+- readpoint指向已经写入完成的ID；
+- writepoint指向正在写入的ID
+
+没有数据写入的时候，二者的位置是一样的，当有数据写入的时候，readpoint要比writepoint小，只有readpoint之前的数据能够读取到（只要成功写入HLog和Memstore的数据能够读取到，无需写入HFile中）
+
+***Nonce***
+Nonce机制，在网络不稳定的情况下，当客户端发送rpc请求给regionserver服务器的时候，如果服务器处理时间过长导致超时，会出现服务器处理完毕，而无法及时通知客户端，导致客户端重新发送写入请求，即多次发送append，会造成数据多次添加。为了防止类似的现象，Hbase引入了Nonce机制，ServerNonceManager负责管理该RegionServer的nonce。
+客户端每次申请以及重复申请会使用同一个nonce，发送到服务端之后，服务端会判断该nonce是否存在，如果不存在则可以放心执行，否则会根据当前的nonce进行相应的回调处理：
+
+- 如果nonce处于WAIT状态，表示该nonce所对应的操作正在执行中，需要等待其执行结束，根据其执行结果进行下一步操作；
+- 如果nonce处于PROCEED状态，则表明该nonce所对应的操作已经执行过了，只不过是已失败告终，可以重新执行；
+- 如果noce处于DONT_PROCEED状态，无需做处理。因此，当nonce进入DONT_PROCEED状态以后，所有通过它来执行的操作都会被忽视掉，从而防止操作冗余的发生。
+
+## 具体过程
 
 **初始化ZooKeeper Session**
 因为meta Region的路由信息存放于ZooKeeper中，在第一次从ZooKeeper中读取META Region的地址时，需要先初始化一个ZooKeeper Session。ZooKeeper Session是ZooKeeper Client与ZooKeeper Server端所建立的一个会话，通过心跳机制保持长连接。
@@ -159,6 +189,39 @@ WAL，HDFS Replication，Compaction以及Caching，共同导致了磁盘写IO的
 
 - 不能太少：避免因文件数不断增多导致读取时延出现明显增大
 - 不能太多：合理控制写入放大
+
+# 读流程
+
+## 读取模式
+
+***Get***
+Get是指基于确切的RowKey去获取一行数据，通常被称之为随机点查，这正是HBase所擅长的读取模式。
+发送Get请求的接口获取到的一行记录，被封装成一个Result对象：
+
+- 关联一行数据，一定不可能包含跨行的结果
+- 包含一个或多个被请求的列。有可能包含这行数据的所有列，也有可能仅包含部分列
+
+也定义了Batch Get的接口，这样可以在一次网络请求中同时获取多行数据。获取到的Result列表中的结果的顺序，与给定的RowKey顺序是一致的。
+
+***Scan***
+HBase中的数据表通过划分成一个个的Region来实现数据的分片，每一个Region关联一个RowKey的范围区间，而每一个Region中的数据，按RowKey的字典顺序进行组织。
+正是基于这种设计，使得HBase能够轻松应对这类查询：”指定一个RowKey的范围区间，获取该区间的所有记录”， 这类查询在HBase被称之为Scan。
+
+- 如果StartRow未指定，则本次Scan将从表的第一行数据开始读取。
+- 如果StopRow未指定，而且在不主动停止本次Scan操作的前提下，本次Scan将会一直读取到表的最后一行记录。
+- 如果StartRow与StopRow都未指定，那本次Scan就是一次全表扫描操作。
+- 同Get类似，Scan也可以主动指定返回的列族或列:
+
+## 读取步骤
+<img src="/images/hbase-read-steps.png">
+
+- Client先访问zookeeper，从meta表读取region的位置，然后读取meta表中的数据。meta中又存储了用户表的region信息；
+- 根据namespace、表名和rowkey在meta表中找到对应的region信息；
+- 找到这个region对应的regionserver；
+- 查找对应的region；
+- 先从MemStore找数据，如果没有，再到BlockCache里面读；
+- BlockCache还没有，再到StoreFile上读(为了读取的效率)；
+- 如果是从StoreFile里面读取的数据，不是直接返回给客户端，而是先写入BlockCache，再返回给客户端。
 
 
 # 适用场景
