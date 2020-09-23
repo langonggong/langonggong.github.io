@@ -97,7 +97,10 @@
 <meta property="og:image" content="http://langonggong.com/images/get-region.jpg">
 <meta property="og:image" content="http://langonggong.com/images/client-region-data-pack.jpg">
 <meta property="og:image" content="http://langonggong.com/images/write-wal.jpg">
-<meta property="og:updated_time" content="2020-09-21T16:06:11.805Z">
+<meta property="og:image" content="http://langonggong.com/images/FlushAndCompaction.png">
+<meta property="og:image" content="http://langonggong.com/images/InMemoryFlush.png">
+<meta property="og:image" content="http://langonggong.com/images/write-amplification.png">
+<meta property="og:updated_time" content="2020-09-22T15:54:27.520Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hbase学习">
 <meta name="twitter:description" content="Hbase">
@@ -362,7 +365,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  2,764
+                  3,529
                 </span>
               
 
@@ -378,7 +381,7 @@
                   <span class="post-meta-item-text">Reading time &asymp;</span>
                 
                 <span title="Reading time">
-                  10
+                  13
                 </span>
               
             </div>
@@ -463,6 +466,26 @@
 <p><strong>Region内部处理：写WAL</strong><br>HBase也采用了LSM-Tree的架构设计：LSM-Tree利用了传统机械硬盘的“顺序读写速度远高于随机读写速度”的特点。随机写入的数据，如果直接去改写每一个Region上的数据文件，那么吞吐量是非常差的。因此，每一个Region中随机写入的数据，都暂时先缓存在内存中(HBase中存放这部分内存数据的模块称之为MemStore)，为了保障数据可靠性，将这些随机写入的数据顺序写入到一个称之为WAL(Write-Ahead-Log)的日志文件中，WAL中的数据按时间顺序组织：<br><img src="/images/write-wal.jpg"><br>在HBase中，默认一个RegionServer只有一个可写的WAL文件。</p>
 <p><strong>Region内部处理：写MemStore</strong><br>每一个Column Family，在Region内部被抽象为了一个HStore对象，而每一个HStore拥有自身的MemStore，用来缓存一批最近被随机写入的数据，这是LSM-Tree核心设计的一部分。</p>
 <p>MemStore中用来存放所有的KeyValue的数据结构，核心是一个ConcurrentSkipListMap，我们知道，ConcurrentSkipListMap是Java的跳表实现，数据按照Key值有序存放，而且在高并发写入时，性能远高于ConcurrentHashMap。</p>
+<h1 id="文件合并"><a href="#文件合并" class="headerlink" title="文件合并"></a>文件合并</h1><p>MemStore中的数据，达到一定的阈值，被Flush成HDFS中的HFile文件。</p>
+<p>HBase Compaction可以将一些HFile文件合并成较大的HFile文件，也可以把所有的HFile文件合并成一个大的HFile文件，这个过程可以理解为：将多个HFile的“交错无序状态”，变成单个HFile的“有序状态”，降低读取时延。小范围的HFile文件合并，称之为Minor Compaction，一个列族中将所有的HFile文件合并，称之为Major Compaction。</p>
+<p><img src="/images/FlushAndCompaction.png"></p>
+<h2 id="Flush"><a href="#Flush" class="headerlink" title="Flush"></a>Flush</h2><p>MemStore由一个可写的Segment，以及一个或多个不可写的Segments构成。<br><img src="/images/InMemoryFlush.png"><br>MemStore中的数据先Flush成一个Immutable的Segment，多个Immutable Segments可以在内存中进行Compaction，当达到一定阈值以后才将内存中的数据持久化成HDFS中的HFile文件。</p>
+<p><strong><em>为什么不能调小MemStore的大小，多次写入HFile，减小内存开销？</em></strong><br>如果MemStore中的数据被直接Flush成HFile，而多个HFile又被Compaction合并成了一个大HFile，随着一次次Compaction发生以后，一条数据往往被重写了多次，这带来显著的IO放大问题，另外，频繁的Compaction对IO资源的抢占，其实也是导致HBase查询时延大毛刺的罪魁祸首之一。</p>
+<p><strong><em>为何不直接调大MemStore的大小,减少Compaction的次数</em></strong><br>ConcurrentSkipListMap在存储的数据量达到一定大小以后，写入性能将会出现显著的恶化。</p>
+<h2 id="Compaction"><a href="#Compaction" class="headerlink" title="Compaction"></a>Compaction</h2><p><strong><em>目的</em></strong></p>
+<ul>
+<li>减少HFile文件数量，减少文件句柄数量，降低读取时延</li>
+<li>Major Compaction可以帮助清理集群中不再需要的数据（过期数据，被标记删除的数据，版本数溢出的数据）</li>
+</ul>
+<p>如果有多个HFiles文件，如果想基于RowKey读取一行数据，则需要查看多个文件，因为不同的HFile文件的RowKey Range可能是重叠的，此时，Compaction对于降低读取时延是非常必要的。</p>
+<p>很多HBase用户在集群中关闭了自动Major Compaction，为了降低Compaction对IO资源的抢占，但出于清理数据的需要，又不得不在一些非繁忙时段手动触发Major Compaction，这样既可以有效降低存储空间，也可以有效降低读取时延。</p>
+<p><strong><em>弊端</em></strong><br>Compaction会导致写入放大<br><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">在<span class="selector-tag">Facebook</span> <span class="selector-tag">Messages</span>系统中，业务读写比为99<span class="selector-pseudo">:1</span>，而最终反映到磁盘中，读写比却变为了36<span class="selector-pseudo">:64</span>。</span><br><span class="line"><span class="selector-tag">WAL</span>，<span class="selector-tag">HDFS</span> <span class="selector-tag">Replication</span>，<span class="selector-tag">Compaction</span>以及<span class="selector-tag">Caching</span>，共同导致了磁盘写<span class="selector-tag">IO</span>的显著放大。</span><br></pre></td></tr></table></figure></p>
+<p><img src="/images/write-amplification.png"><br>随着不断的执行Minor Compaction以及Major Compaction，可以看到，这条数据被反复读取/写入了多次，这是导致写放大的一个关键原因，这里的写放大，涉及到网络IO与磁盘IO，因为数据在HDFS中默认有三个副本。</p>
+<p>而关于如何合理的执行Compaction，我们需要结合业务数据特点，不断的权衡如下两点：</p>
+<ul>
+<li>不能太少：避免因文件数不断增多导致读取时延出现明显增大</li>
+<li>不能太多：合理控制写入放大</li>
+</ul>
 <h1 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h1><h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><p><strong>什么样的数据适合用HBase来存储？</strong></p>
 <ul>
 <li>以实体为中心的数据<ul>
@@ -714,7 +737,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据模型"><span class="nav-number">1.</span> <span class="nav-text">数据模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#集群架构"><span class="nav-number">2.</span> <span class="nav-text">集群架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#存储结构"><span class="nav-number">3.</span> <span class="nav-text">存储结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#写流程"><span class="nav-number">4.</span> <span class="nav-text">写流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#适用场景"><span class="nav-number">5.</span> <span class="nav-text">适用场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">6.</span> <span class="nav-text">Q&amp;A</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#进阶"><span class="nav-number">7.</span> <span class="nav-text">进阶</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据模型"><span class="nav-number">1.</span> <span class="nav-text">数据模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#集群架构"><span class="nav-number">2.</span> <span class="nav-text">集群架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#存储结构"><span class="nav-number">3.</span> <span class="nav-text">存储结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#写流程"><span class="nav-number">4.</span> <span class="nav-text">写流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#文件合并"><span class="nav-number">5.</span> <span class="nav-text">文件合并</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Flush"><span class="nav-number">5.1.</span> <span class="nav-text">Flush</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Compaction"><span class="nav-number">5.2.</span> <span class="nav-text">Compaction</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#适用场景"><span class="nav-number">6.</span> <span class="nav-text">适用场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">7.</span> <span class="nav-text">Q&amp;A</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#进阶"><span class="nav-number">8.</span> <span class="nav-text">进阶</span></a></li></ol></div>
             
 
           </div>
@@ -748,7 +771,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">84.5k</span>
+    <span title="Site words total count">85.3k</span>
   
 </div>
 
