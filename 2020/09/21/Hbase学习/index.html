@@ -100,7 +100,8 @@
 <meta property="og:image" content="http://langonggong.com/images/FlushAndCompaction.png">
 <meta property="og:image" content="http://langonggong.com/images/InMemoryFlush.png">
 <meta property="og:image" content="http://langonggong.com/images/write-amplification.png">
-<meta property="og:updated_time" content="2020-09-22T15:54:27.520Z">
+<meta property="og:image" content="http://langonggong.com/images/hbase-read-steps.png">
+<meta property="og:updated_time" content="2020-09-23T17:37:37.841Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hbase学习">
 <meta name="twitter:description" content="Hbase">
@@ -365,7 +366,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  3,529
+                  4,726
                 </span>
               
 
@@ -381,7 +382,7 @@
                   <span class="post-meta-item-text">Reading time &asymp;</span>
                 
                 <span title="Reading time">
-                  13
+                  17
                 </span>
               
             </div>
@@ -445,10 +446,30 @@
 <li>Store<br>  每一个region由一个或多个store组成，至少是一个store，hbase会把一起访问的数据放在一个store里面，即为每个 ColumnFamily建一个store，如果有几个ColumnFamily，也就有几个Store。一个Store由一个memStore和0或者 多个StoreFile组成。 HBase以store的大小来判断是否需要切分region</li>
 <li>MemStore<br>  memStore 是放在内存里的。保存修改的数据即keyValues。当memStore的大小达到一个阀值（默认128MB）时，memStore会被flush到文 件，即生成一个快照。目前hbase 会有一个线程来负责memStore的flush操作。</li>
 <li>StoreFile<br>  memStore内存中的数据写到文件后就是StoreFile，StoreFile底层是以HFile的格式保存。当storefile文件的数量增长到一定阈值后，系统会进行合并（minor、major compaction），在合并过程中会进行版本合并和删除工作（majar），形成更大的storefile。</li>
-<li>HFile<br>  HBase中KeyValue数据的存储格式，HFile是Hadoop的 二进制格式文件，实际上StoreFile就是对Hfile做了轻量级包装，即StoreFile底层就是HFile。</li>
+<li>HFile<br>  HBase中KeyValue数据的存储格式，HFile是Hadoop的 二进制格式文件，实际上StoreFile就是对Hfile做了轻量级包装，即StoreFile底层就是HFile。HFile数据文件存在于底层的HDFS中。</li>
 <li>HLog<br>  HLog(WAL log)：WAL意为write ahead log，用来做灾难恢复使用，HLog记录数据的所有变更，一旦region server 宕机，就可以从log中进行恢复。</li>
 </ul>
-<h1 id="写流程"><a href="#写流程" class="headerlink" title="写流程"></a>写流程</h1><p><strong>初始化ZooKeeper Session</strong><br>因为meta Region的路由信息存放于ZooKeeper中，在第一次从ZooKeeper中读取META Region的地址时，需要先初始化一个ZooKeeper Session。ZooKeeper Session是ZooKeeper Client与ZooKeeper Server端所建立的一个会话，通过心跳机制保持长连接。</p>
+<h1 id="写流程"><a href="#写流程" class="headerlink" title="写流程"></a>写流程</h1><h2 id="写入步骤"><a href="#写入步骤" class="headerlink" title="写入步骤"></a>写入步骤</h2><ul>
+<li>客户端想RegionServer发送写入数据请求；</li>
+<li>RegionServer先将数据写入HLog，即WAL，再讲数据写入MemStore；</li>
+<li>当MemStore中的数据达到阈值的时候，会将数据Flush到硬盘中，并同时清空内存和HLog中的历史数据；</li>
+<li>将硬盘中数据通过HFile来序列化，再讲数据传输到HDFS进行存储。并对HLog进行一次标记；</li>
+<li>当HFile数量到达一定值的时候，会进行compact操作，合并成一个大的HFile；</li>
+<li>如果一个region大小超过阈值时，会进行split操作，并将拆分后的region重新分配的不同的RegionServer进行管理；</li>
+</ul>
+<h2 id="数据一致性"><a href="#数据一致性" class="headerlink" title="数据一致性"></a>数据一致性</h2><p><strong><em>MVCC</em></strong><br>写入流程中涉及到MVCC多版本协议控制协议，主要是hbase解决读写一致性的解决方案。MVCC变量是region级别的，每个region之间的mvcc是相互独立的。<br>Hbase每次Put都会指定一个唯一ID，该ID是Region级递增的。每个Region得MVCC维护两个point：</p>
+<ul>
+<li>readpoint指向已经写入完成的ID；</li>
+<li>writepoint指向正在写入的ID</li>
+</ul>
+<p>没有数据写入的时候，二者的位置是一样的，当有数据写入的时候，readpoint要比writepoint小，只有readpoint之前的数据能够读取到（只要成功写入HLog和Memstore的数据能够读取到，无需写入HFile中）</p>
+<p><strong><em>Nonce</em></strong><br>Nonce机制，在网络不稳定的情况下，当客户端发送rpc请求给regionserver服务器的时候，如果服务器处理时间过长导致超时，会出现服务器处理完毕，而无法及时通知客户端，导致客户端重新发送写入请求，即多次发送append，会造成数据多次添加。为了防止类似的现象，Hbase引入了Nonce机制，ServerNonceManager负责管理该RegionServer的nonce。<br>客户端每次申请以及重复申请会使用同一个nonce，发送到服务端之后，服务端会判断该nonce是否存在，如果不存在则可以放心执行，否则会根据当前的nonce进行相应的回调处理：</p>
+<ul>
+<li>如果nonce处于WAIT状态，表示该nonce所对应的操作正在执行中，需要等待其执行结束，根据其执行结果进行下一步操作；</li>
+<li>如果nonce处于PROCEED状态，则表明该nonce所对应的操作已经执行过了，只不过是已失败告终，可以重新执行；</li>
+<li>如果noce处于DONT_PROCEED状态，无需做处理。因此，当nonce进入DONT_PROCEED状态以后，所有通过它来执行的操作都会被忽视掉，从而防止操作冗余的发生。</li>
+</ul>
+<h2 id="具体过程"><a href="#具体过程" class="headerlink" title="具体过程"></a>具体过程</h2><p><strong>初始化ZooKeeper Session</strong><br>因为meta Region的路由信息存放于ZooKeeper中，在第一次从ZooKeeper中读取META Region的地址时，需要先初始化一个ZooKeeper Session。ZooKeeper Session是ZooKeeper Client与ZooKeeper Server端所建立的一个会话，通过心跳机制保持长连接。</p>
 <p><strong>获取Region路由信息</strong><br>通过前面建立的连接，从ZooKeeper中读取meta Region所在的RegionServer，这个读取流程，当前已经是异步的。获取了meta Region的路由信息以后，再从meta Region中定位要读写的RowKey所关联的Region信息。如下图所示：<br><img src="/images/get-region.jpg"><br>因为每一个用户表Region都是一个RowKey Range，meta Region中记录了每一个用户表Region的路由以及状态信息，以RegionName(包含表名，Region StartKey，Region ID，副本ID等信息)作为RowKey。基于一条用户数据RowKey，快速查询该RowKey所属的Region的方法其实很简单：只需要基于表名以及该用户数据RowKey，构建一个虚拟的Region Key，然后通过Reverse Scan的方式，读到的第一条Region记录就是该数据所关联的Region。</p>
 <p>Region只要不被迁移，那么获取的该Region的路由信息就是一直有效的，因此，HBase Client有一个Cache机制来缓存Region的路由信息，避免每次读写都要去访问ZooKeeper或者meta Region。</p>
 <p><strong>客户端侧的数据分组“打包”</strong><br>如果这条待写入的数据采用的是Single Put的方式，那么，该步骤可以略过（事实上，单条Put操作的流程相对简单，就是先定位该RowKey所对应的Region以及RegionServer信息后，Client直接发送写请求到RegionServer侧即可）。</p>
@@ -485,6 +506,29 @@
 <ul>
 <li>不能太少：避免因文件数不断增多导致读取时延出现明显增大</li>
 <li>不能太多：合理控制写入放大</li>
+</ul>
+<h1 id="读流程"><a href="#读流程" class="headerlink" title="读流程"></a>读流程</h1><h2 id="读取模式"><a href="#读取模式" class="headerlink" title="读取模式"></a>读取模式</h2><p><strong><em>Get</em></strong><br>Get是指基于确切的RowKey去获取一行数据，通常被称之为随机点查，这正是HBase所擅长的读取模式。<br>发送Get请求的接口获取到的一行记录，被封装成一个Result对象：</p>
+<ul>
+<li>关联一行数据，一定不可能包含跨行的结果</li>
+<li>包含一个或多个被请求的列。有可能包含这行数据的所有列，也有可能仅包含部分列</li>
+</ul>
+<p>也定义了Batch Get的接口，这样可以在一次网络请求中同时获取多行数据。获取到的Result列表中的结果的顺序，与给定的RowKey顺序是一致的。</p>
+<p><strong><em>Scan</em></strong><br>HBase中的数据表通过划分成一个个的Region来实现数据的分片，每一个Region关联一个RowKey的范围区间，而每一个Region中的数据，按RowKey的字典顺序进行组织。<br>正是基于这种设计，使得HBase能够轻松应对这类查询：”指定一个RowKey的范围区间，获取该区间的所有记录”， 这类查询在HBase被称之为Scan。</p>
+<ul>
+<li>如果StartRow未指定，则本次Scan将从表的第一行数据开始读取。</li>
+<li>如果StopRow未指定，而且在不主动停止本次Scan操作的前提下，本次Scan将会一直读取到表的最后一行记录。</li>
+<li>如果StartRow与StopRow都未指定，那本次Scan就是一次全表扫描操作。</li>
+<li>同Get类似，Scan也可以主动指定返回的列族或列:</li>
+</ul>
+<h2 id="读取步骤"><a href="#读取步骤" class="headerlink" title="读取步骤"></a>读取步骤</h2><p><img src="/images/hbase-read-steps.png"></p>
+<ul>
+<li>Client先访问zookeeper，从meta表读取region的位置，然后读取meta表中的数据。meta中又存储了用户表的region信息；</li>
+<li>根据namespace、表名和rowkey在meta表中找到对应的region信息；</li>
+<li>找到这个region对应的regionserver；</li>
+<li>查找对应的region；</li>
+<li>先从MemStore找数据，如果没有，再到BlockCache里面读；</li>
+<li>BlockCache还没有，再到StoreFile上读(为了读取的效率)；</li>
+<li>如果是从StoreFile里面读取的数据，不是直接返回给客户端，而是先写入BlockCache，再返回给客户端。</li>
 </ul>
 <h1 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h1><h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><p><strong>什么样的数据适合用HBase来存储？</strong></p>
 <ul>
@@ -737,7 +781,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据模型"><span class="nav-number">1.</span> <span class="nav-text">数据模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#集群架构"><span class="nav-number">2.</span> <span class="nav-text">集群架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#存储结构"><span class="nav-number">3.</span> <span class="nav-text">存储结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#写流程"><span class="nav-number">4.</span> <span class="nav-text">写流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#文件合并"><span class="nav-number">5.</span> <span class="nav-text">文件合并</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Flush"><span class="nav-number">5.1.</span> <span class="nav-text">Flush</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Compaction"><span class="nav-number">5.2.</span> <span class="nav-text">Compaction</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#适用场景"><span class="nav-number">6.</span> <span class="nav-text">适用场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">7.</span> <span class="nav-text">Q&amp;A</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#进阶"><span class="nav-number">8.</span> <span class="nav-text">进阶</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据模型"><span class="nav-number">1.</span> <span class="nav-text">数据模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#集群架构"><span class="nav-number">2.</span> <span class="nav-text">集群架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#存储结构"><span class="nav-number">3.</span> <span class="nav-text">存储结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#写流程"><span class="nav-number">4.</span> <span class="nav-text">写流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#写入步骤"><span class="nav-number">4.1.</span> <span class="nav-text">写入步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据一致性"><span class="nav-number">4.2.</span> <span class="nav-text">数据一致性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#具体过程"><span class="nav-number">4.3.</span> <span class="nav-text">具体过程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#文件合并"><span class="nav-number">5.</span> <span class="nav-text">文件合并</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Flush"><span class="nav-number">5.1.</span> <span class="nav-text">Flush</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Compaction"><span class="nav-number">5.2.</span> <span class="nav-text">Compaction</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#读流程"><span class="nav-number">6.</span> <span class="nav-text">读流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#读取模式"><span class="nav-number">6.1.</span> <span class="nav-text">读取模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#读取步骤"><span class="nav-number">6.2.</span> <span class="nav-text">读取步骤</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#适用场景"><span class="nav-number">7.</span> <span class="nav-text">适用场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">8.</span> <span class="nav-text">Q&amp;A</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#进阶"><span class="nav-number">9.</span> <span class="nav-text">进阶</span></a></li></ol></div>
             
 
           </div>
@@ -771,7 +815,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">85.3k</span>
+    <span title="Site words total count">86.5k</span>
   
 </div>
 
