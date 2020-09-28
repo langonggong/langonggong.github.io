@@ -223,8 +223,63 @@ HBase中的数据表通过划分成一个个的Region来实现数据的分片，
 - BlockCache还没有，再到StoreFile上读(为了读取的效率)；
 - 如果是从StoreFile里面读取的数据，不是直接返回给客户端，而是先写入BlockCache，再返回给客户端。
 
+# HFile
 
-# 适用场景
+## 文件结构
+<img src="/images/HFileV2.png">
+
+从以上图片可以看出HFile主要分为四个部分：
+
+- Scanned Block Section: 顺序扫描HFile，这个section的所有数据块都被读取，包括Leaf Index Block 和 Bloom Block
+- Non-Scanned Block Section: 顺序扫描HFile，这个section的数据不会被读取，主要包括元数据数据块等
+- Load-On-Open-Section: 这部分数据在HRegionServer启动时候，实例化HRegion并创建HStore的时候会将所有HFile的Load-On-Open-Section里的数据加载进内存，主要存放了Root Data Index, Meta Index，FileInfo以及BloomFilter的元数据等
+- Trailer: 这部分主要记录HFile的一些基本信息，各个部分的偏移量和寻址信息
+
+***Data Block***
+Data Block是HBase中数据存储的最小单元，它存储的是用户KeyValue数据，数据结构如图所示：
+<img src="/images/data_block.png">
+
+Key Type：存储Key类型Key Type，占1字节，Type分为Put、Delete、DeleteColumn、DeleteFamilyVersion、DeleteFamily等类型，标记这个KeyValue的类型
+
+***Bloom Block***
+BloomFilter对于HBase随机读的性能至关重要，他可以避免读取一些不会用到HFile,减少实际的IO次数，提高随机读的性能。
+下图中集合S只有两个元素x和y，分别被3个hash函数进行映射，映射到的位置分别为（0，2，6）和（4，7，10），对应的位会被置为1:
+<img src="/images/BloomFilter.png">
+现在假如要判断另一个元素是否是在此集合中，只需要被这3个hash函数进行映射，查看对应的位置是否有0存在，如果有的话，表示此元素肯定不存在于这个集合，否则有可能存在。下图所示就表示z肯定不在集合｛x，y｝中：
+<img src="/images/BloomFilter_z.png">
+
+## 文件特点
+***分层索引***
+无论是Data Block Index还是Bloom Filter，都采用了分层索引的设计。
+
+Data Block的索引，在HFile V2中做多可支持三层索引：最底层的Data Block Index称之为Leaf Index Block，可直接索引到Data Block；中间层称之为Intermediate Index Block，最上层称之为Root Data Index，Root Data index存放在一个称之为”Load-on-open Section“区域，Region Open时会被加载到内存中。基本的索引逻辑为：由Root Data Index索引到Intermediate Block Index，再由Intermediate Block Index索引到Leaf Index Block，最后由Leaf Index Block查找到对应的Data Block。在实际场景中，Intermediate Block Index基本上不会存在，因此，索引逻辑被简化为：由Root Data Index直接索引到Leaf Index Block，再由Leaf Index Block查找到的对应的Data Block。
+
+Bloom Filter也被拆成了多个Bloom Block，在”Load-on-open Section”区域中，同样存放了所有Bloom Block的索引数据。
+
+***交叉存放***
+在”Scanned Block Section“区域，Data Block(存放用户数据KeyValue)、存放Data Block索引的Leaf Index Block(存放Data Block的索引)与Bloom Block(Bloom Filter数据)交叉存在。
+
+***按需读取***
+无论是Data Block的索引数据，还是Bloom Filter数据，都被拆成了多个Block，基于这样的设计，无论是索引数据，还是Bloom Filter，都可以按需读取，避免在Region Open阶段或读取阶段一次读入大量的数据，有效降低时延。
+
+## 数据索引
+Root Index Block、Leaf Index Block、Data Block所处的位置以及索引关系（忽略Bloom过滤器）：
+<img src="/images/RootBlockIndex-B.png">
+
+混合了BloomFilter Block以后的HFile构成如下图所示：
+<img src="/images/index-BloomFilter.png">
+
+# 高可用
+***Hbase宕机处理***
+
+- Zookeeper会监控RegionServer的上下线情况，当ZK发现某个RegionServer宕机之后，会通知HMaster；
+- 该RegionServer会停止对外提供服务，即该Region服务器下的region对外都无法访问；
+- HMaster会将该RegionServer所负责的region转移到其他RegionServer上，并且会对RegionServer上存在MemStore中未持久化到硬盘的数据进行恢复；
+- 这个恢复操作工作由读取WAL文件完成：
+	- 宕机发生时，读取该RegionServer所对应的路径下的WAL文件，然后根据不同的region切分成不同的recover.edits；
+	- 当region被分配到其他RegionServer时，RegionServer读取region时会进行是否存在recover.edits，如果有则进行恢复。
+
+
 # Q&A
 
 **什么样的数据适合用HBase来存储？**
