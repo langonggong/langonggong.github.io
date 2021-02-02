@@ -101,7 +101,13 @@
 <meta property="og:image" content="http://langonggong.com/images/InMemoryFlush.png">
 <meta property="og:image" content="http://langonggong.com/images/write-amplification.png">
 <meta property="og:image" content="http://langonggong.com/images/hbase-read-steps.png">
-<meta property="og:updated_time" content="2020-09-23T17:37:37.841Z">
+<meta property="og:image" content="http://langonggong.com/images/HFileV2.png">
+<meta property="og:image" content="http://langonggong.com/images/data_block.png">
+<meta property="og:image" content="http://langonggong.com/images/BloomFilter.png">
+<meta property="og:image" content="http://langonggong.com/images/BloomFilter_z.png">
+<meta property="og:image" content="http://langonggong.com/images/RootBlockIndex-B.png">
+<meta property="og:image" content="http://langonggong.com/images/index-BloomFilter.png">
+<meta property="og:updated_time" content="2020-09-28T17:05:56.795Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hbase学习">
 <meta name="twitter:description" content="Hbase">
@@ -366,7 +372,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  4,726
+                  5,719
                 </span>
               
 
@@ -382,7 +388,7 @@
                   <span class="post-meta-item-text">Reading time &asymp;</span>
                 
                 <span title="Reading time">
-                  17
+                  21
                 </span>
               
             </div>
@@ -530,7 +536,36 @@
 <li>BlockCache还没有，再到StoreFile上读(为了读取的效率)；</li>
 <li>如果是从StoreFile里面读取的数据，不是直接返回给客户端，而是先写入BlockCache，再返回给客户端。</li>
 </ul>
-<h1 id="适用场景"><a href="#适用场景" class="headerlink" title="适用场景"></a>适用场景</h1><h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><p><strong>什么样的数据适合用HBase来存储？</strong></p>
+<h1 id="HFile"><a href="#HFile" class="headerlink" title="HFile"></a>HFile</h1><h2 id="文件结构"><a href="#文件结构" class="headerlink" title="文件结构"></a>文件结构</h2><p><img src="/images/HFileV2.png"></p>
+<p>从以上图片可以看出HFile主要分为四个部分：</p>
+<ul>
+<li>Scanned Block Section: 顺序扫描HFile，这个section的所有数据块都被读取，包括Leaf Index Block 和 Bloom Block</li>
+<li>Non-Scanned Block Section: 顺序扫描HFile，这个section的数据不会被读取，主要包括元数据数据块等</li>
+<li>Load-On-Open-Section: 这部分数据在HRegionServer启动时候，实例化HRegion并创建HStore的时候会将所有HFile的Load-On-Open-Section里的数据加载进内存，主要存放了Root Data Index, Meta Index，FileInfo以及BloomFilter的元数据等</li>
+<li>Trailer: 这部分主要记录HFile的一些基本信息，各个部分的偏移量和寻址信息</li>
+</ul>
+<p><strong><em>Data Block</em></strong><br>Data Block是HBase中数据存储的最小单元，它存储的是用户KeyValue数据，数据结构如图所示：<br><img src="/images/data_block.png"></p>
+<p>Key Type：存储Key类型Key Type，占1字节，Type分为Put、Delete、DeleteColumn、DeleteFamilyVersion、DeleteFamily等类型，标记这个KeyValue的类型</p>
+<p><strong><em>Bloom Block</em></strong><br>BloomFilter对于HBase随机读的性能至关重要，他可以避免读取一些不会用到HFile,减少实际的IO次数，提高随机读的性能。<br>下图中集合S只有两个元素x和y，分别被3个hash函数进行映射，映射到的位置分别为（0，2，6）和（4，7，10），对应的位会被置为1:<br><img src="/images/BloomFilter.png"><br>现在假如要判断另一个元素是否是在此集合中，只需要被这3个hash函数进行映射，查看对应的位置是否有0存在，如果有的话，表示此元素肯定不存在于这个集合，否则有可能存在。下图所示就表示z肯定不在集合｛x，y｝中：<br><img src="/images/BloomFilter_z.png"></p>
+<h2 id="文件特点"><a href="#文件特点" class="headerlink" title="文件特点"></a>文件特点</h2><p><strong><em>分层索引</em></strong><br>无论是Data Block Index还是Bloom Filter，都采用了分层索引的设计。</p>
+<p>Data Block的索引，在HFile V2中做多可支持三层索引：最底层的Data Block Index称之为Leaf Index Block，可直接索引到Data Block；中间层称之为Intermediate Index Block，最上层称之为Root Data Index，Root Data index存放在一个称之为”Load-on-open Section“区域，Region Open时会被加载到内存中。基本的索引逻辑为：由Root Data Index索引到Intermediate Block Index，再由Intermediate Block Index索引到Leaf Index Block，最后由Leaf Index Block查找到对应的Data Block。在实际场景中，Intermediate Block Index基本上不会存在，因此，索引逻辑被简化为：由Root Data Index直接索引到Leaf Index Block，再由Leaf Index Block查找到的对应的Data Block。</p>
+<p>Bloom Filter也被拆成了多个Bloom Block，在”Load-on-open Section”区域中，同样存放了所有Bloom Block的索引数据。</p>
+<p><strong><em>交叉存放</em></strong><br>在”Scanned Block Section“区域，Data Block(存放用户数据KeyValue)、存放Data Block索引的Leaf Index Block(存放Data Block的索引)与Bloom Block(Bloom Filter数据)交叉存在。</p>
+<p><strong><em>按需读取</em></strong><br>无论是Data Block的索引数据，还是Bloom Filter数据，都被拆成了多个Block，基于这样的设计，无论是索引数据，还是Bloom Filter，都可以按需读取，避免在Region Open阶段或读取阶段一次读入大量的数据，有效降低时延。</p>
+<h2 id="数据索引"><a href="#数据索引" class="headerlink" title="数据索引"></a>数据索引</h2><p>Root Index Block、Leaf Index Block、Data Block所处的位置以及索引关系（忽略Bloom过滤器）：<br><img src="/images/RootBlockIndex-B.png"></p>
+<p>混合了BloomFilter Block以后的HFile构成如下图所示：<br><img src="/images/index-BloomFilter.png"></p>
+<h1 id="高可用"><a href="#高可用" class="headerlink" title="高可用"></a>高可用</h1><p><strong><em>Hbase宕机处理</em></strong></p>
+<ul>
+<li>Zookeeper会监控RegionServer的上下线情况，当ZK发现某个RegionServer宕机之后，会通知HMaster；</li>
+<li>该RegionServer会停止对外提供服务，即该Region服务器下的region对外都无法访问；</li>
+<li>HMaster会将该RegionServer所负责的region转移到其他RegionServer上，并且会对RegionServer上存在MemStore中未持久化到硬盘的数据进行恢复；</li>
+<li>这个恢复操作工作由读取WAL文件完成：<ul>
+<li>宕机发生时，读取该RegionServer所对应的路径下的WAL文件，然后根据不同的region切分成不同的recover.edits；</li>
+<li>当region被分配到其他RegionServer时，RegionServer读取region时会进行是否存在recover.edits，如果有则进行恢复。</li>
+</ul>
+</li>
+</ul>
+<h1 id="Q-amp-A"><a href="#Q-amp-A" class="headerlink" title="Q&amp;A"></a>Q&amp;A</h1><p><strong>什么样的数据适合用HBase来存储？</strong></p>
 <ul>
 <li>以实体为中心的数据<ul>
 <li>自然人／账户／手机号／车辆相关数据</li>
@@ -623,6 +658,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2021/02/03/hive学习/" rel="prev" title="Hive学习">
+                Hive学习 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -703,7 +742,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">65</span>
+                  <span class="site-state-item-count">66</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -725,7 +764,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">49</span>
+                  <span class="site-state-item-count">51</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
@@ -781,7 +820,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据模型"><span class="nav-number">1.</span> <span class="nav-text">数据模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#集群架构"><span class="nav-number">2.</span> <span class="nav-text">集群架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#存储结构"><span class="nav-number">3.</span> <span class="nav-text">存储结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#写流程"><span class="nav-number">4.</span> <span class="nav-text">写流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#写入步骤"><span class="nav-number">4.1.</span> <span class="nav-text">写入步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据一致性"><span class="nav-number">4.2.</span> <span class="nav-text">数据一致性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#具体过程"><span class="nav-number">4.3.</span> <span class="nav-text">具体过程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#文件合并"><span class="nav-number">5.</span> <span class="nav-text">文件合并</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Flush"><span class="nav-number">5.1.</span> <span class="nav-text">Flush</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Compaction"><span class="nav-number">5.2.</span> <span class="nav-text">Compaction</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#读流程"><span class="nav-number">6.</span> <span class="nav-text">读流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#读取模式"><span class="nav-number">6.1.</span> <span class="nav-text">读取模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#读取步骤"><span class="nav-number">6.2.</span> <span class="nav-text">读取步骤</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#适用场景"><span class="nav-number">7.</span> <span class="nav-text">适用场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">8.</span> <span class="nav-text">Q&amp;A</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#进阶"><span class="nav-number">9.</span> <span class="nav-text">进阶</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据模型"><span class="nav-number">1.</span> <span class="nav-text">数据模型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#集群架构"><span class="nav-number">2.</span> <span class="nav-text">集群架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#存储结构"><span class="nav-number">3.</span> <span class="nav-text">存储结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#写流程"><span class="nav-number">4.</span> <span class="nav-text">写流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#写入步骤"><span class="nav-number">4.1.</span> <span class="nav-text">写入步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据一致性"><span class="nav-number">4.2.</span> <span class="nav-text">数据一致性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#具体过程"><span class="nav-number">4.3.</span> <span class="nav-text">具体过程</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#文件合并"><span class="nav-number">5.</span> <span class="nav-text">文件合并</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Flush"><span class="nav-number">5.1.</span> <span class="nav-text">Flush</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Compaction"><span class="nav-number">5.2.</span> <span class="nav-text">Compaction</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#读流程"><span class="nav-number">6.</span> <span class="nav-text">读流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#读取模式"><span class="nav-number">6.1.</span> <span class="nav-text">读取模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#读取步骤"><span class="nav-number">6.2.</span> <span class="nav-text">读取步骤</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HFile"><span class="nav-number">7.</span> <span class="nav-text">HFile</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#文件结构"><span class="nav-number">7.1.</span> <span class="nav-text">文件结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文件特点"><span class="nav-number">7.2.</span> <span class="nav-text">文件特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据索引"><span class="nav-number">7.3.</span> <span class="nav-text">数据索引</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#高可用"><span class="nav-number">8.</span> <span class="nav-text">高可用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Q-amp-A"><span class="nav-number">9.</span> <span class="nav-text">Q&amp;A</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#进阶"><span class="nav-number">10.</span> <span class="nav-text">进阶</span></a></li></ol></div>
             
 
           </div>
@@ -801,7 +840,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2020</span>
+        <div class="copyright">&copy; 2018 &mdash; <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
@@ -815,7 +854,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">86.5k</span>
+    <span title="Site words total count">87.5k</span>
   
 </div>
 
