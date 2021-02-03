@@ -89,10 +89,14 @@
 <meta property="og:site_name" content="武汉旭神">
 <meta property="og:description" content="Hive">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2021-02-02T17:17:00.625Z">
+<meta property="og:image" content="http://langonggong.com/images/hive-jiagou.png">
+<meta property="og:image" content="http://langonggong.com/images/schema-on-write.png">
+<meta property="og:image" content="http://langonggong.com/images/schema-on-read.png">
+<meta property="og:updated_time" content="2021-02-03T17:12:13.915Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hive学习">
 <meta name="twitter:description" content="Hive">
+<meta name="twitter:image" content="http://langonggong.com/images/hive-jiagou.png">
 
 
 
@@ -353,7 +357,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  47
+                  2,949
                 </span>
               
 
@@ -369,7 +373,7 @@
                   <span class="post-meta-item-text">Reading time &asymp;</span>
                 
                 <span title="Reading time">
-                  1
+                  10
                 </span>
               
             </div>
@@ -394,7 +398,109 @@
       
 
       
-        <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><h2 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h2><h2 id="读时模式"><a href="#读时模式" class="headerlink" title="读时模式"></a>读时模式</h2><h2 id="数据模型"><a href="#数据模型" class="headerlink" title="数据模型"></a>数据模型</h2><h3 id="表类型"><a href="#表类型" class="headerlink" title="表类型"></a>表类型</h3><h3 id="分区、分桶"><a href="#分区、分桶" class="headerlink" title="分区、分桶"></a>分区、分桶</h3><h1 id="文件存储格式"><a href="#文件存储格式" class="headerlink" title="文件存储格式"></a>文件存储格式</h1><h1 id="序列化与反序列化"><a href="#序列化与反序列化" class="headerlink" title="序列化与反序列化"></a>序列化与反序列化</h1><h1 id="存储后端"><a href="#存储后端" class="headerlink" title="存储后端"></a>存储后端</h1><h1 id="HQL"><a href="#HQL" class="headerlink" title="HQL"></a>HQL</h1><h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><h2 id="join"><a href="#join" class="headerlink" title="join"></a>join</h2><h2 id="排序"><a href="#排序" class="headerlink" title="排序"></a>排序</h2><h1 id="调优"><a href="#调优" class="headerlink" title="调优"></a>调优</h1>
+        <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>hive是facebook开源，并捐献给了apache组织，作为apache组织的顶级项目(hive.apache.org)。 hive是一个基于大数据技术的数据仓库(DataWareHouse)技术，主要是通过将用户书写的SQL语句翻译成MapReduce代码，然后发布任务给MR框架执行，完成SQL 到 MapReduce的转换。可以将结构化的数据文件映射为一张数据库表，并提供类SQL查询功能。</p>
+<h2 id="为什么使用Hive"><a href="#为什么使用Hive" class="headerlink" title="为什么使用Hive"></a>为什么使用Hive</h2><h3 id="现状"><a href="#现状" class="headerlink" title="现状"></a>现状</h3><p><strong>直接使用hadoop所面临的问题</strong></p>
+<ul>
+<li>人员学习成本太高</li>
+<li>项目周期要求太短</li>
+<li>MapReduce实现复杂查询逻辑开发难度太大</li>
+</ul>
+<p><strong>优点</strong></p>
+<ul>
+<li>操作接口采用类SQL语法，提供快速开发的能力。</li>
+<li>避免了去写MapReduce，减少开发人员的学习成本。</li>
+<li>扩展功能很方便。</li>
+</ul>
+<h3 id="Hive的特点"><a href="#Hive的特点" class="headerlink" title="Hive的特点"></a>Hive的特点</h3><ul>
+<li>可扩展<br>  Hive可以自由的扩展集群的规模，一般情况下不需要重启服务。</li>
+<li>延展性<br>  Hive支持用户自定义函数，用户可以根据自己的需求来实现自己的函数。</li>
+<li>容错<br>  良好的容错性，节点出现问题SQL仍可完成执行。</li>
+</ul>
+<h2 id="架构"><a href="#架构" class="headerlink" title="架构"></a>架构</h2><p><img src="/images/hive-jiagou.png"></p>
+<ul>
+<li>HDFS：用来存储hive仓库的数据文件</li>
+<li>yarn：用来完成hive的HQL转化的MR程序的执行</li>
+<li>MetaStore：保存管理hive维护的元数据</li>
+<li>Hive：用来通过HQL的执行，转化为MapReduce程序的执行，从而对HDFS集群中的数据文件进行统计。</li>
+</ul>
+<p><strong>基本组成</strong></p>
+<ul>
+<li>用户接口：包括 CLI、JDBC/ODBC、WebGUI。</li>
+<li>元数据存储：通常是存储在关系数据库如 mysql , derby中。</li>
+<li>解释器、编译器、优化器、执行器。</li>
+</ul>
+<p><strong>各组件的基本功能</strong></p>
+<ul>
+<li>用户接口主要由三个：CLI、JDBC/ODBC和WebGUI。其中，CLI为shell命令行；JDBC/ODBC是Hive的JAVA实现，与传统数据库JDBC类似；WebGUI是通过浏览器访问Hive。</li>
+<li>元数据存储：Hive 将元数据存储在数据库中。Hive 中的元数据包括表的名字，表的列和分区及其属性，表的属性（是否为外部表等），表的数据所在目录等。</li>
+<li>解释器、编译器、优化器完成 HQL 查询语句从词法分析、语法分析、编译、优化以及查询计划的生成。生成的查询计划存储在 HDFS 中，并在随后有 MapReduce 调用执行。</li>
+</ul>
+<h2 id="读时模式"><a href="#读时模式" class="headerlink" title="读时模式"></a>读时模式</h2><h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>一般的schema有两种创建方式，如图所示</p>
+<p><strong>schema on write</strong><br><img src="/images/schema-on-write.png"><br>写时模型，作用于数据源到数据汇聚存储之间，典型使用就是传统数据库，数据在入库的时候需要预先设置schema，简单讲，就是表结构。</p>
+<p><strong>schema on read</strong><br><img src="/images/schema-on-read.png"><br>读时模型，作用于数据汇聚存储到数据分析之间，数据先存储，然后在需要分析的时候再为数据设置schema</p>
+<h3 id="两种模式对比"><a href="#两种模式对比" class="headerlink" title="两种模式对比"></a>两种模式对比</h3><p><strong>业务</strong><br>    数据是具有不同角色和不同业务之间的共享资产，相同的数据会因为业务的不同而获得不同的见解。对于一个成熟的业务，已有模型足够涵盖所有的数据集，变化较少，则可以使用写时模型，提前定义好所有数据模型（数仓作用）；<br>    对于一个新的或者探索性业务，由于业务需求不定，并且变动频繁，因此数据不适合绑定到预定的结构，则可以使用读时模式，快速迭代，尽快交付业务需求</p>
+<p><strong>数据质量</strong><br>    写时模式，会对存储的数据质量进行检查或檫除（ETL），确保数据在某个业务场景下明确定义的、精确的和可信的。<br>    读时模式，因为数据没有受到严格的ETL和数据清理过程,也没有经过任何验证,该数据可能充斥着缺失或无效的数据,重复和一大堆其他问题，可能会导致不准确或    不完整的查询结果。如果在on read的时候进行ETL，由于同样数据不同schema，则会导致重复工作</p>
+<p><strong>效率</strong><br>    写时模式更亲和读效率，因为数据存储在合适的地方，并做了类型安全和清理优化工作，通常更高效。但这是以数据摄入时，繁琐的预处理为代价换来的<br>    相反，读时模式更亲和写效率，数据摄入不需要做其它处理，简单，快捷；但是就会导致on read时，解析和解释数据效率低下</p>
+<p><strong>功能与系统</strong><br>    写时模式更多用于对结构化数据的OLAP与OLTP，对应传统的数据库系统<br>    而读时模式基于非结构化数据，需要存储更多的数据，海量的分析需求，快速的需求响应，与大数据系统不谋而和</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>前面我们分三个部分，分别阐述了数据流程，schema意义，两种模式的定义和对比<br>关键的其实有以下三点：</p>
+<ul>
+<li>schema on read强调灵活自由，schema on write注重稳定和效率，两者对比几乎围绕这几点展开</li>
+<li>schema on read与schema on write不是二者取一，而是相辅相成，互相协助</li>
+<li>schema有其存在的意义，无论是结构化还是非结构数据分析挖掘，schema都是必须的过程</li>
+</ul>
+<h1 id="数据模型"><a href="#数据模型" class="headerlink" title="数据模型"></a>数据模型</h1><h2 id="表类型"><a href="#表类型" class="headerlink" title="表类型"></a>表类型</h2><h3 id="内表与外表"><a href="#内表与外表" class="headerlink" title="内表与外表"></a>内表与外表</h3><ul>
+<li>内表：hive完全控制数据的生命周期。删除内部表，删除表元数据和数据</li>
+<li>外表：只保存schema，不控制数据的生命周期。删除外部表，删除元数据，不删除数据</li>
+</ul>
+<p><strong>使用选择</strong></p>
+<p>大多数情况，他们的区别不明显，如果数据的所有处理都在 Hive 中进行，那么倾向于选择内部表，但是如果 Hive 和其他工具要针对相同的数据集进行处理，外部表更合适。<br>　　使用外部表访问存储在 HDFS 上的初始数据，然后通过 Hive 转换数据并存到内部表中。使用外部表的场景是针对一个数据集有多个不同的 Schema。<br>　　通过外部表和内部表的区别和使用选择的对比可以看出来，hive 其实仅仅只是对存储在HDFS 上的数据提供了一种新的抽象。而不是管理存储在 HDFS 上的数据。所以不管创建内部表还是外部表，都可以对 hive 表的数据存储目录中的数据进行增删操作。</p>
+<h3 id="视图"><a href="#视图" class="headerlink" title="视图"></a>视图</h3><p>与传统数据库类似，只读，基于基本表创建</p>
+<p><strong>特点</strong></p>
+<ul>
+<li>视图是一个虚表，一个逻辑概念，可以跨越多张表。表是物理概念，数据放在表中，视图是虚表，操作视图和操作表是一样的，所谓虚，是指视图下不存数据。</li>
+<li>视图是建立在已有表的基础上，视图赖以建立的这些表称为基表</li>
+<li>视图可以简化复杂的查询</li>
+</ul>
+<h3 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h3><p>Hive的索引其实是一张索引表（Hive的物理表），在表里面存储索引列的值，该值对应的HDFS的文件路径，该值在数据文件中的偏移量。<br>当Hive通过索引列执行查询时，首先通过一个MR Job去查询索引表，根据索引列的过滤条件，查询出该索引列值对应的HDFS文件目录及偏移量，并且把这些数据输出到HDFS的一个文件中，然后再根据这个文件中去筛选原文件，作为查询Job的输入。</p>
+<p><strong>优点</strong></p>
+<ul>
+<li>可以避免全表扫描和资源浪费</li>
+<li>可以加快含有group by的语句的查询速度</li>
+</ul>
+<p><strong>缺点</strong></p>
+<ul>
+<li>使用过程繁琐</li>
+<li>需用额外Job扫描索引表</li>
+<li>不会自动刷新，如果表有数据变动，索引表需要手动刷新</li>
+</ul>
+<h2 id="分区与分桶"><a href="#分区与分桶" class="headerlink" title="分区与分桶"></a>分区与分桶</h2><h3 id="分区"><a href="#分区" class="headerlink" title="分区"></a>分区</h3><p><strong>作用</strong><br>如果一个表中数据很多，查询时就很慢，耗费大量时间，如果要查询其中部分数据，需要引入分区的概念</p>
+<p><strong>原理</strong><br>在Hive中的数据仓库中，也有分区分桶的概念，在逻辑上，分区表与未分区表没有区别，在物理上分区表会将数据按照分区间的列值存储在表目录的子目录中，目录名=“分区键=键值”。其中需要注意的是分区键的列值存储在表目录的子目录中，目录名=“分区键=键值”。其中需要注意的是分区键的值不一定要基于表的某一列（字段），它可以指定任意值，只要查询的时候指定相应的分区键来查询即可。我们可以对分区进行添加、删除、重命名、清空等操作。</p>
+<p>Hive中的分区表分为两种：静态分区和动态分区</p>
+<p><strong>静态分区</strong></p>
+<ul>
+<li>可以根据PARTITIONED BY创建分区表，一个表可以拥有一个或者多个分区，每个分区以文件夹的形式单独存在表文件夹的目录下。</li>
+<li>分区是以字段的形式在表结构中存在，通过describe table命令可以查看到字段存在，但是该字段不存放实际的数据内容，仅仅是分区的表示。</li>
+<li>分区建表分为2种，一种是单分区，也就是说在表文件夹目录下只有一级文件夹目录。另外一种是多分区，表文件夹下出现多文件夹嵌套模式。</li>
+</ul>
+<p><strong>动态分区</strong></p>
+<p>Static Partition (SP) columns 静态分区；<br>Dynamic Partition (DP) columns 动态分区。</p>
+<ul>
+<li>DP列的指定方式与SP列相同 - 在分区子句中（ Partition关键字后面），唯一的区别是，DP列没有值，而SP列有值（ Partition关键字后面只有key没有value）</li>
+<li>在INSERT … SELECT …查询中，必须在SELECT语句中的列中最后指定动态分区列，并按PARTITION（）子句中出现的顺序进行排列</li>
+<li>所有DP列 - 只允许在非严格模式下使用。 在严格模式下，我们应该抛出一个错误</li>
+<li>如果动态分区和静态分区一起使用，必须是动态分区的字段在前，静态分区的字段在后。</li>
+</ul>
+<h3 id="分桶"><a href="#分桶" class="headerlink" title="分桶"></a>分桶</h3><p><strong>原理</strong><br>分桶则是指定分桶表的某一列，让该列数据按照哈希取模的方式随机、均匀的分发到各个桶文件中。因为分桶操作需要根据某一列具体数据来进行哈希取模操作，故指定的分桶列必须基于表中的某一列（字段）。分桶改变了数据的存储方式，它会把哈希取模相同或者在某一个区间的数据行放在同一个桶文件中。</p>
+<p><strong>作用</strong></p>
+<ul>
+<li>提高join查询效率</li>
+</ul>
+<p>获得更高的查询处理效率。桶为表加上了额外的结构，Hive 在处理有些查询时能利用这个结构。具体而言，连接两个在（包含连接列的）相同列上划分了桶的表，可以使用 Map 端连接 （Map-side join）高效的实现。比如JOIN操作。对于JOIN操作两个表有一个相同的列，如果对这两个表都进行了桶操作。那么将保存相同列值的桶进行JOIN操作就可以，可以大大较少JOIN的数据量</p>
+<ul>
+<li>方便抽样</li>
+</ul>
+<p>使取样（sampling）更高效。在处理大规模数据集时，在开发和修改查询的阶段，如果能在数据集的一小部分数据上试运行查询，会带来很多方便</p>
+<h1 id="文件存储格式"><a href="#文件存储格式" class="headerlink" title="文件存储格式"></a>文件存储格式</h1><h1 id="序列化与反序列化"><a href="#序列化与反序列化" class="headerlink" title="序列化与反序列化"></a>序列化与反序列化</h1><h1 id="存储后端"><a href="#存储后端" class="headerlink" title="存储后端"></a>存储后端</h1><h1 id="HQL"><a href="#HQL" class="headerlink" title="HQL"></a>HQL</h1><h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><h2 id="join"><a href="#join" class="headerlink" title="join"></a>join</h2><h2 id="排序"><a href="#排序" class="headerlink" title="排序"></a>排序</h2><h1 id="调优"><a href="#调优" class="headerlink" title="调优"></a>调优</h1>
       
     </div>
     
@@ -623,7 +729,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#架构"><span class="nav-number">1.1.</span> <span class="nav-text">架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#读时模式"><span class="nav-number">1.2.</span> <span class="nav-text">读时模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据模型"><span class="nav-number">1.3.</span> <span class="nav-text">数据模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#表类型"><span class="nav-number">1.3.1.</span> <span class="nav-text">表类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分区、分桶"><span class="nav-number">1.3.2.</span> <span class="nav-text">分区、分桶</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#文件存储格式"><span class="nav-number">2.</span> <span class="nav-text">文件存储格式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#序列化与反序列化"><span class="nav-number">3.</span> <span class="nav-text">序列化与反序列化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#存储后端"><span class="nav-number">4.</span> <span class="nav-text">存储后端</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HQL"><span class="nav-number">5.</span> <span class="nav-text">HQL</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实现原理"><span class="nav-number">5.1.</span> <span class="nav-text">实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#join"><span class="nav-number">5.2.</span> <span class="nav-text">join</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#排序"><span class="nav-number">5.3.</span> <span class="nav-text">排序</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#调优"><span class="nav-number">6.</span> <span class="nav-text">调优</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么使用Hive"><span class="nav-number">1.1.</span> <span class="nav-text">为什么使用Hive</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#现状"><span class="nav-number">1.1.1.</span> <span class="nav-text">现状</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hive的特点"><span class="nav-number">1.1.2.</span> <span class="nav-text">Hive的特点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#架构"><span class="nav-number">1.2.</span> <span class="nav-text">架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#读时模式"><span class="nav-number">1.3.</span> <span class="nav-text">读时模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义"><span class="nav-number">1.3.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#两种模式对比"><span class="nav-number">1.3.2.</span> <span class="nav-text">两种模式对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.3.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据模型"><span class="nav-number">2.</span> <span class="nav-text">数据模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#表类型"><span class="nav-number">2.1.</span> <span class="nav-text">表类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#内表与外表"><span class="nav-number">2.1.1.</span> <span class="nav-text">内表与外表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#视图"><span class="nav-number">2.1.2.</span> <span class="nav-text">视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#索引"><span class="nav-number">2.1.3.</span> <span class="nav-text">索引</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分区与分桶"><span class="nav-number">2.2.</span> <span class="nav-text">分区与分桶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分区"><span class="nav-number">2.2.1.</span> <span class="nav-text">分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分桶"><span class="nav-number">2.2.2.</span> <span class="nav-text">分桶</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#文件存储格式"><span class="nav-number">3.</span> <span class="nav-text">文件存储格式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#序列化与反序列化"><span class="nav-number">4.</span> <span class="nav-text">序列化与反序列化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#存储后端"><span class="nav-number">5.</span> <span class="nav-text">存储后端</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HQL"><span class="nav-number">6.</span> <span class="nav-text">HQL</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实现原理"><span class="nav-number">6.1.</span> <span class="nav-text">实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#join"><span class="nav-number">6.2.</span> <span class="nav-text">join</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#排序"><span class="nav-number">6.3.</span> <span class="nav-text">排序</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#调优"><span class="nav-number">7.</span> <span class="nav-text">调优</span></a></li></ol></div>
             
 
           </div>
@@ -657,7 +763,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">87.5k</span>
+    <span title="Site words total count">90.4k</span>
   
 </div>
 
