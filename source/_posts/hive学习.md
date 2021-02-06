@@ -177,6 +177,290 @@ Dynamic Partition (DP) columns 动态分区。
 使取样（sampling）更高效。在处理大规模数据集时，在开发和修改查询的阶段，如果能在数据集的一小部分数据上试运行查询，会带来很多方便
 
 # 文件存储格式
+
+## textfile
+默认格式，数据不做压缩，磁盘开销大，数据解析开销大。可结合Gzip、Bzip2使用(系统自动检查，执行查询时自动解压)，但使用这种方式，hive不会对数据进行切分， 从而无法对数据进行并行操作。
+
+## Sequence
+
+SequenceFile是Hadoop API提供的一种二进制文件支持，以<key,value>的形式序列化到文件中，其具有使用方便、可分割、可压缩的特点。 SequenceFile支持三种压缩选择：NONE，RECORD，BLOCK。Record压缩率低，一般建议使用BLOCK压缩。
+
+## ORCFile
+
+### 概述历史
+
+- RCFile全称Record Columnar File，列式记录文件，是一种类似于SequenceFile的键值对（Key/Value Pairs）数据文件。
+- 在当前的基于Hadoop系统的数据仓库中，数据存储格式是影响数据仓库性能的一个重要因素。Facebook于是提出了集行存储和列存储的优点于一身的RCFile文件存储格式。
+- 为了提高存储空间利用率，Facebook各产品线应用产生的数据从2010年起均采用RCFile结构存储，按行存储（SequenceFile/TextFile）结构保存的数据集也转存为RCFile格式。
+- 此外，Yahoo公司也在Pig数据分析系统中集成了RCFile，RCFile正在用于另一个基于Hadoop的数据管理系统Howl（http://wiki.apache.org/pig/Howl）。
+- 而且，根据Hive开发社区的交流，RCFile也成功整合加入其他基于MapReduce的数据分析平台。有理由相信，作为数据存储标准的RCFile，将继续在MapReduce环境下的大规模数据分析中扮演重要角色。
+
+### 列式存储
+**基于行存储的优点和缺点**
+下图为Hadoop block中的基于行存储的示例图
+<img src="/images/hadoop-row-file.png">
+
+- 优点：具备快速数据加载和动态负载的高适应能力，因为行存储保证了相同记录的所有域都在同一个集群节点
+- 缺点：但是它不太满足快速的查询响应时间的要求，特别是在当查询仅仅针对所有列中的少数几列时，它就不能直接定位到所需列而跳过不需要的列，由于混合着不同数据值的列，行存储不易获得一个极高的压缩比。
+
+**基于列存储的优点和缺点**
+下图为Hadoop block中的基于列存储的示例图
+<img src="/images/hadoop-col-file.png">
+
+- 优点：这种结构使得在查询时能够直接读取需要的列而避免不必要列的读取，并且对于相似数据也可以有一个更好的压缩比。
+- 缺点：它并不能提供基于Hadoop系统的快速查询处理，也不能保证同一记录的所有列都存储在同一集群节点之上，也不适应高度动态的数据负载模式。
+
+RCFile设计思想
+<img src="/images/rcfile.png">
+
+RCFile结合列存储和行存储的优缺点，Facebook于是提出了基于行列混合存储的RCFile，该存储结构遵循的是“先水平划分，再垂直划分”的设计理念。先将数据按行水平划分为行组，这样一行的数据就可以保证存储在同一个集群节点；然后在对行进行垂直划分。 
+RCFile是在Hadoop HDFS之上的存储结构，该结构强调： 
+
+- RCFile存储的表是水平划分的，分为多个行组，每个行组再被垂直划分，以便每列单独存储； 
+- RCFile在每个行组中利用一个列维度的数据压缩，并提供一种Lazy解压（decompression）技术来在查询执行时避免不必要的列解压； 
+- RCFile支持弹性的行组大小，行组大小需要权衡数据压缩性能和查询性能两方面。
+- RCFile的每个行组中，元数据头部和表格数据段（每个列被独立压缩）分别进行压缩，RCFile使用重量级的Gzip压缩算法，是为了获得较好的压缩比。另外在由于Lazy压缩策略，当处理一个行组时，RCFile只需要解压使用到的列，因此相对较高的Gzip解压开销可以减少。 
+- RCFile具备相当于行存储的数据加载速度和负载适应能力，在读数据时可以在扫描表格时避免不必要的列读取，它比其他结构拥有更好的性能，使用列维度的压缩能够有效提升存储空间利用率。
+
+### 读写优化
+
+**数据读取和Lazy解压**
+在MapReduce框架中，mapper将顺序处理HDFS块中的每个行组。当处理一个行组时，RCFile无需全部读取行组的全部内容到内存。相反，它仅仅读元数据头部和给定查询需要的列。因此，它可以跳过不必要的列以获得列存储的I/O优势。(例如，表tbl(c1, c2, c3, c4)有4个列，做一次查询“SELECT c1 FROM tbl WHERE c4 = 1”，对每个行组，RCFile仅仅读取c1和c4列的内容。).在元数据头部和需要的列数据加载到内存中后，它们需要解压。元数据头部总会解压并在内存中维护直到RCFile处理下一个行组。然而，RCFile不会解压所有加载的列，相反，它使用一种Lazy解压技术。
+
+Lazy解压意味着列将不会在内存解压，直到RCFile决定列中数据真正对查询执行有用。由于查询使用各种WHERE条件，Lazy解压非常有用。如果一个WHERE条件不能被行组中的所有记录满足，那么RCFile将不会解压WHERE条件中不满足的列。例如，在上述查询中，所有行组中的列c4都解压了。然而，对于一个行组，如果列c4中没有值为1的域，那么就无需解压列c1。
+
+**行组大小**
+I/O性能是RCFile关注的重点，因此RCFile需要行组够大并且大小可变。行组大小和下面几个因素相关。
+
+- 行组大的话，数据压缩效率会比行组小时更有效。根据对Facebook日常应用的观察，当行组大小达到一个阈值后，增加行组大小并不能进一步增加Gzip算法下的压缩比。
+- 行组变大能够提升数据压缩效率并减少存储量。因此，如果对缩减存储空间方面有强烈需求，则不建议选择使用小行组。需要注意的是，当行组的大小超过4MB，数据的压缩比将趋于一致。
+- 尽管行组变大有助于减少表格的存储规模，但是可能会损害数据的读性能，因为这样减少了Lazy解压带来的性能提升。而且行组变大会占用更多的内存，这会影响并发执行的其他MapReduce作业。考虑到存储空间和查询效率两个方面，Facebook选择4MB作为默认的行组大小，当然也允许用户自行选择参数进行配置。
+
+## Parquet
+
+### 数据模型
+每条记录中的字段可以包含三种类型：required, repeated, optional。最终由所有叶子节点来代表整个schema。
+
+- 元组的Schema可以转换成树状结构，根节点可以理解为repeated类型
+- 所有叶子结点都是基本类型
+- 没有Map、Array这样的复杂数据结构，但是可以通过repeated和group组合来实现这样的需求
+
+### Striping/Assembly算法
+
+Parquet的一条记录的数据如何分成多少列，又如何组装回来？是由Striping/Assembly算法决定的。
+
+在该算法中，列的每一个值都包含三个部分：
+
+- value : 字段值
+- repetition level : 重复级别
+- definition level : 定义级别
+
+#### Repetition Levels
+
+repetition level的设计目标是为了支持repeated类型的节点：
+
+- 在写入时该值等于它和前面的值从哪一层节点开始是不共享的。
+- 在读取的时候根据该值可以推导出哪一层上需要创建一个新的节点。
+
+例子：对于这样的schema和两条记录：
+```
+message nested {
+ repeated group leve1 {
+  repeated string leve2;
+ }
+}
+```
+
+```
+r1:[[a,b,c,] , [d,e,f,g]]
+r2:[[h] , [i,j]]
+```
+
+计算一下各个值的repetition level。
+repetition level计算过程：
+
+- value=a是一条记录的开始，和前面的值在根结点上是不共享的，因此repetition level=0
+- value=b和前面的值共享了level1这个节点，但是在level2这个节点上不共享，因此repetition level=2
+- 同理，value=c的repetition value=2
+- value=d和前面的值共享了根节点，在level1这个节点是不共享的，因此repetition level=1
+- 同理，value=e,f,g都和自己前面的占共享了level1，没有共享level2，因此repetition level=2
+- value=h属于另一条记录，和前面不共享任何节点，因此，repetition level=0
+- value=i跟前面的结点共享了根，但是没有共享level1节点，因此repetition level=1
+- value-j跟前面的节点共享了level1，但是没有共享level2，因此repetition level=2
+
+在读取时，会顺序读取每个值，然后根据它的repetition level创建对象
+
+- 当读取value=a时，repeatition level=0，表示需要创建一个新的根节点，
+- 当读取value=b时，repeatition level=2，表示需要创建level2节点
+- 当读取value=c时，repeatition level=2，表示需要创建level2节点
+- 当读取value=d时，repeatition level=1，表示需要创建level1节点
+- 剩下的节点依此类推
+
+几点规律：
+
+- repetition level=0表示一条记录的开始
+- repetition level的值只是针对路径上repeated类型的节点，因此在计算时可以忽略非repeated类型的节点
+- 在写入的时候将其理解为该节点和路径上的哪一个repeated节点是不共享的
+- 读取的时候将其理解为需要在哪一层创建一个新的repeated节点
+
+#### Definition Levels
+
+有了repetition levle就可以构造出一条记录了，那么为什么还需要definition level呢？
+
+是因为repeated和optional类型的存在，可以一条记录中的某些列是没有值的，如果不记录这样的值，就会导致本该属于下一条记录的值被当做当前记录中的一部分，从而导致数据错误，因此，对于这种情况，需要一个占位符来表示。
+
+definition level的值仅对空值是有效的，**表示该值的路径上第几层开始是未定义的**；对于非空值它是没有意义的，因为非空值在叶子节点上是有定义的，所有的父节点也一定是有定义的，因此它的值总是等于该列最大的definition level。
+例子：对于这样的schema：
+
+```
+message ExampleDefinitionLevel {
+ optional group a {
+  optional group b {
+   optional string c;
+  }
+ }
+}
+```
+
+它包含一个列a.b.c，这个列的的每一个节点都是optional类型的，当c被定义时a和b肯定都是已定义的，当c未定义时我们就需要标示出在从哪一层开始时未定义的
+一条记录的definition level的几种可能的情况如下表：
+
+
+| 服务健康检查 | 服务状态，内存，硬盘等 | (弱)长连接，keepalive | 连接心跳 | 可配支持 |
+
+| Value | Definition Level |
+| :-: | :-: | 
+| a:null	| 0 |
+| a:{b:null}	| 1 |
+| a:{b:{c:null}}	 | 2 |
+| a:{b:{c:”foo”}}	| 3(全部定义了) |
+
+由于definition level只需要考虑未定义的值，对于required类型的节点，只要父亲节点定义了，该节点就必须定义，因此计算时可以忽略路径上的required类型的节点，这样可以减少definition level的最大值，优化存储。
+
+#### 一个完整的例子
+
+下面使用[Dremel论文](https://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/36632.pdf)中给的Document示例和给定的两个值展示计算repeated level和definition level的过程，这里把未定义的值记录为NULL，使用R表示repeated level，D表示definition level。
+
+schema及数据示例：
+ <img src="/images/parquet-Dremel-paper-re-de-demo.png">
+ schema及levels对应关系：
+ [详细求解过程](https://github.com/julienledem/redelm/wiki/The-striping-and-assembly-algorithms-from-the-Dremel-paper)
+  <img src="/images/ parquet-demo-schema-levels.png">
+  
+  - 首先看DocId这一列，r1和r2都只有一值分别是：
+	- id1=10,由于它是记录开始，并且是已定义的，因此R=0,D=0
+	- id2=20,由于是新记录的开始，并且是已经定义的，因此R=0,D=0
+- 对于Name.Url这一列，r1中它有三个值，r2中有一个值分别是：
+	- url1=’http://A’ ，它是r1中该列的第一个值，并且是定义的，所以R=0,D=2
+	- url2=’http://B’ ，它跟上一个值在Name这层是不同的，并且是定义的，所以R=1,D=2
+	- url3=NULL，它跟上一个值在Name这层是不同的，并且是未定义的，所以R=1,D=1
+	- url4=’http://C’ ，它跟上一个值属于不同记录，并且是定义的，所以R=0,D=2
+- 对于Links.Forward这一列，在r1中有三个值，在r2中有1个值，分别是：
+	- value1=20，它是r1中该列的第一个值，并且是定义的，所以R=0,D=2
+	- value2=40，它跟上一个值在Links这层是相同的，并且是定义的，所以R=1,D=2
+	- value3=60，它跟上一个值在Links这层是相同的，并且是定义的，所以R=1,D=2
+	- value4=80，它是一条新的记录，并且是定义的，所以R=0,D=2
+- 对于Links.Backward这一列，在r1中有一个空值，在r2中两个值，分别是：
+	- value1=NULL，它是一条新记录，并且是未定义的，父节点Links是定义的，所以R=0,D=1
+	- value2=10，是一条新记录，并且是定义的，所以R=0,D=2
+	- value3=30,跟上个值共享父节点，并且是定义的，所以R=1,D=2
+
+#### Parquet文件格式
+ <img src="/images/parquet-file-struct.png">
+ 
+ Parquet文件是二进制方式存储的，文件中包含数据和元数据，可以直接进行解析。
+
+先了解一下关于Parquet文件的几个基本概念：
+
+- 行组(Row Group)：每一个行组包含一定的行数，一般对应一个HDFS文件块，Parquet读写的时候会将整个行组缓存在内存中。
+- 列块(Column Chunk)：在一个行组中每一列保存在一个列块中，一个列块中的值都是相同类型的，不同的列块可能使用不同的算法进行压缩。
+- 页(Page)：每一个列块划分为多个页，一个页是最小的编码的单位，在同一个列块的不同页可能使用不同的编码方式。
+
+
+Parquet文件组成：
+
+- 文件开始和结束的4个字节都是Magic Code，用于校验它是否是一个Parquet文件
+- 结束MagicCode前的Footer length是文件元数据的大小，通过该值和文件长度可以计算出元数据Footer的偏移量
+- 再往前推是Footer文件的元数据，里面包含：
+	- 文件级别的信息：版本，Schema，Extra key/value对等
+	- 每个行组的元信息，每个行组是由多个列块组成的：
+	- 每个列块的元信息：类型，路径，编码方式，第1个数据页的位置，第1个索引页的位置，压缩的、未压缩的尺寸，额外的KV
+- 文件中大部分内容是各个行组信息：
+	- 一个行组由多个列块组成
+		- 一个列块由多个页组成，在Parquet中有三种页：
+			- 数据页：一个页由页头、repetition levels\definition levles\valus组成
+			- 字典页：存储该列值的编码字典，每一个列块中最多包含一个字典页
+			- 索引页：用来存储当前行组下该列的索引，目前Parquet中还不支持索引页，但是在后面的版本中增加
+
+#### 计算时间优化
+Parquet的最大价值在于，它提供了一中把IO奉献给查询需要用到的数据。主要的优化有两种：
+
+- 映射下推(Project PushDown)
+- 谓词下推(Predicate PushDown)
+
+**映射下推**
+列式存储的最大优势是映射下推，它意味着在获取表中原始数据时只需要扫描查询中需要的列。
+
+Parquet中原生就支持映射下推，执行查询的时候可以通过Configuration传递需要读取的列的信息，在扫描一个行组时，只扫描对应的列。
+
+除此之外，Parquet在读取数据时，会考虑列的存储是否是连接的，对于连续的列，一次读操作就可以把多个列的数据读到内存。
+
+**谓词下推**
+在RDB中谓词下推是一项非常通用的技术，通过将一些过滤条件尽可能的在最底层执行可以减少每一层交互的数据量，从而提升性能。
+
+例如，
+
+```
+select count(1)
+from A Join B
+on A.id = B.id
+where A.a > 10 and B.b < 100
+```
+
+SQL查询中，如果把过滤条件A.a > 10和B.b < 100分别移到TableScan的时候执行，可以大大降低Join操作的输入数据。
+
+无论是行式存储还是列式存储，都可以做到上面提到的将一些过滤条件尽可能的在最底层执行。
+
+但是Parquet做了更进一步的优化，它对于每个行组中的列都在存储时进行了统计信息的记录，包括最小值，最大值，空值个数。通过这些统计值和该列的过滤条件可以直接判断此行组是否需要扫描。
+
+另外，未来还会增加Bloom Filter和Index等优化数据，更加有效的完成谓词下推。
+
+在使用Parquet的时候可以通过如下两种策略提升查询性能：
+
+- 类似于关系数据库的主键，对需要频繁过滤的列设置为有序的，这样在导入数据的时候会根据该列的顺序存储数据，这样可以最大化的利用最大值、最小值实现谓词下推。
+- 减小行组大小和页大小，这样增加跳过整个行组的可能性，但是此时需要权衡由于压缩和编码效率下降带来的I/O负载。
+### AVRO
+
+## 压缩
+
+## 性能比较
+在进行测试之前，我们先看看HortonWork公司官网对这几种存储格式的比较分析：
+<img src="/images/HortonWork-hive-file-compare.png">
+从图中很明显看到ORC存储格式和Parquet存储格式对文件的存储比Text格式小很多，也就是说压缩比大很多
+
+实际性能对比测试：
+[实验来源](https://blog.csdn.net/henrrywan/article/details/90719015)
+
+我们从同一个源表新增数据到这六张测试表，为了体现存储数据的差异性，我们选取了一张数据量比较大的源表（源表数据量为30000000条）。
+下面从存储空间和SQL查询两个方面进行比较。
+其中SQL查询为包含group by的计量统计和不含group by的计量统计。
+
+```
+sql01:select count(*) from test_table;
+sql02:select id,count(*) from test_table group by id;
+```
+
+相关的查询结果如下（为了防止出现偶然性，我们每条SQL至少执行三次，取平均值）
+
+|文件存储格式 |	HDFS存储空间	| 不含group by | 含group by | 
+| :-: | :-: |  :-: |  :-: | 
+| TextFile	 | 7.3 G	 | 105s | 	370s | 
+| Parquet	 | 769.0 M	 | **28s**	 | **195s** | 
+| ORC	 | **246.0 M**	 | 34s	 | 310s | 
+| Sequence	 | 7.8 G	 | 135s	 | 385s | 
+| RC	 | 6.9 G | 	92s	 | 330s | 
+| AVRO | 	8.0G | 	240s	 | 530s | 
+
 # 序列化与反序列化
 # 存储后端
 
