@@ -342,10 +342,13 @@ message ExampleDefinitionLevel {
 下面使用[Dremel论文](https://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/36632.pdf)中给的Document示例和给定的两个值展示计算repeated level和definition level的过程，这里把未定义的值记录为NULL，使用R表示repeated level，D表示definition level。
 
 schema及数据示例：
+
  <img src="/images/parquet-Dremel-paper-re-de-demo.png">
  schema及levels对应关系：
+ 
  [详细求解过程](https://github.com/julienledem/redelm/wiki/The-striping-and-assembly-algorithms-from-the-Dremel-paper)
-  <img src="/images/ parquet-demo-schema-levels.png">
+ 
+  <img src="/images/parquet-demo-schema-levels.png">
   
   - 首先看DocId这一列，r1和r2都只有一值分别是：
 	- id1=10,由于它是记录开始，并且是已定义的，因此R=0,D=0
