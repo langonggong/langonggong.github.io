@@ -96,10 +96,21 @@
 <meta property="og:image" content="http://langonggong.com/images/hadoop-col-file.png">
 <meta property="og:image" content="http://langonggong.com/images/rcfile.png">
 <meta property="og:image" content="http://langonggong.com/images/parquet-Dremel-paper-re-de-demo.png">
-<meta property="og:image" content="http://langonggong.com/images/%20parquet-demo-schema-levels.png">
+<meta property="og:image" content="http://langonggong.com/images/parquet-demo-schema-levels.png">
 <meta property="og:image" content="http://langonggong.com/images/parquet-file-struct.png">
+<meta property="og:image" content="http://langonggong.com/images/compress-compare.jpg">
+<meta property="og:image" content="http://langonggong.com/images/compress-split.png">
+<meta property="og:image" content="http://langonggong.com/images/compress-stage.png">
 <meta property="og:image" content="http://langonggong.com/images/HortonWork-hive-file-compare.png">
-<meta property="og:updated_time" content="2021-02-06T16:49:03.557Z">
+<meta property="og:image" content="http://langonggong.com/images/hive-srede-replace.png">
+<meta property="og:image" content="http://langonggong.com/images/hql-join.png">
+<meta property="og:image" content="http://langonggong.com/images/hql-groupby.png">
+<meta property="og:image" content="http://langonggong.com/images/hql-distinct.png">
+<meta property="og:image" content="http://langonggong.com/images/multi-distinct1.png">
+<meta property="og:image" content="http://langonggong.com/images/multi-distinct2.png">
+<meta property="og:image" content="http://langonggong.com/images/common-join.jpeg">
+<meta property="og:image" content="http://langonggong.com/images/map-join.jpeg">
+<meta property="og:updated_time" content="2021-02-21T15:51:40.864Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hive学习">
 <meta name="twitter:description" content="Hive">
@@ -364,7 +375,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  7,735
+                  14,420
                 </span>
               
 
@@ -380,7 +391,7 @@
                   <span class="post-meta-item-text">Reading time &asymp;</span>
                 
                 <span title="Reading time">
-                  28
+                  54
                 </span>
               
             </div>
@@ -625,7 +636,10 @@
 </div>
 <p>由于definition level只需要考虑未定义的值，对于required类型的节点，只要父亲节点定义了，该节点就必须定义，因此计算时可以忽略路径上的required类型的节点，这样可以减少definition level的最大值，优化存储。</p>
 <h4 id="一个完整的例子"><a href="#一个完整的例子" class="headerlink" title="一个完整的例子"></a>一个完整的例子</h4><p>下面使用<a href="https://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/36632.pdf" target="_blank" rel="noopener">Dremel论文</a>中给的Document示例和给定的两个值展示计算repeated level和definition level的过程，这里把未定义的值记录为NULL，使用R表示repeated level，D表示definition level。</p>
-<p>schema及数据示例：<br> <img src="/images/parquet-Dremel-paper-re-de-demo.png"><br> schema及levels对应关系：<br> <a href="https://github.com/julienledem/redelm/wiki/The-striping-and-assembly-algorithms-from-the-Dremel-paper" target="_blank" rel="noopener">详细求解过程</a><br>  <img src="/images/ parquet-demo-schema-levels.png"></p>
+<p>schema及数据示例：</p>
+<p> <img src="/images/parquet-Dremel-paper-re-de-demo.png"><br> schema及levels对应关系：</p>
+<p> <a href="https://github.com/julienledem/redelm/wiki/The-striping-and-assembly-algorithms-from-the-Dremel-paper" target="_blank" rel="noopener">详细求解过程</a></p>
+<p> <img src="/images/parquet-demo-schema-levels.png"></p>
 <ul>
 <li>首先看DocId这一列，r1和r2都只有一值分别是：<ul>
 <li>id1=10,由于它是记录开始，并且是已定义的，因此R=0,D=0</li>
@@ -698,7 +712,25 @@
 <li>类似于关系数据库的主键，对需要频繁过滤的列设置为有序的，这样在导入数据的时候会根据该列的顺序存储数据，这样可以最大化的利用最大值、最小值实现谓词下推。</li>
 <li>减小行组大小和页大小，这样增加跳过整个行组的可能性，但是此时需要权衡由于压缩和编码效率下降带来的I/O负载。<h3 id="AVRO"><a href="#AVRO" class="headerlink" title="AVRO"></a>AVRO</h3></li>
 </ul>
-<h2 id="压缩"><a href="#压缩" class="headerlink" title="压缩"></a>压缩</h2><h2 id="性能比较"><a href="#性能比较" class="headerlink" title="性能比较"></a>性能比较</h2><p>在进行测试之前，我们先看看HortonWork公司官网对这几种存储格式的比较分析：<br><img src="/images/HortonWork-hive-file-compare.png"><br>从图中很明显看到ORC存储格式和Parquet存储格式对文件的存储比Text格式小很多，也就是说压缩比大很多</p>
+<h2 id="压缩"><a href="#压缩" class="headerlink" title="压缩"></a>压缩</h2><p><strong>优缺点</strong></p>
+<ul>
+<li>优点： <ul>
+<li>减少存储磁盘空间，降低单节点的磁盘IO。</li>
+<li>由于压缩后的数据占用的带宽更少，因此可以加快数据在Hadoop集群流动的速度。例如在不同节点创建3个replica的阶段，或是shuffle阶段。</li>
+</ul>
+</li>
+<li>缺点： 需要花费额外的时间/CPU做压缩和解压缩计算</li>
+</ul>
+<p><strong>几种常见的压缩对比</strong></p>
+<p><img src="/images/compress-compare.jpg"></p>
+<p><strong>是否支持分割</strong></p>
+<p><img src="/images/compress-split.png"></p>
+<p>压缩格式文件是否是可分割的 也比较重要：<br>MapReduce 需要将非常大的输入文件分割成多个划分（通常一个文件块对应一个跨分没也就是64MB的倍数），<br>其中每个划分会被分发到一个单独的map进程中。<br>只有当Hadoop 知道文件中记录的边界才可以进行这样的分割。<br>GZip 跟 Snappy 将这些边界信息掩盖掉了。<br>BZip2和LZO提供了块(BLOCK)级别的压缩，也就是每个块都含有完整的记录信息，因此Hadoop 可以在块边界级别对这些文件进行划分。</p>
+<p>需要注意一点：<br>虽然GZip 与 Snappy 文件不可分，但也有替代的方案。<br>当用户创建文件的时候，可以将文件分割成期望的文件大小，通常输出文件的个数等于Reducer 的个数。</p>
+<p>用户使用了N个Reducer，通常就会得到N个输出文件</p>
+<p><strong>压缩分析</strong></p>
+<p>首先说明mapreduce哪些过程可以设置压缩：需要分析处理的数据在进入map前可以压缩，然后解压处理，map处理完成后的输出可以压缩，这样可以减少网络I/O(reduce通常和map不在同一节点上)，reduce拷贝压缩的数据后进行解压，处理完成后可以压缩存储在hdfs上，以减少磁盘占用量。<br><img src="/images/compress-stage.png"></p>
+<h2 id="性能比较"><a href="#性能比较" class="headerlink" title="性能比较"></a>性能比较</h2><p>在进行测试之前，我们先看看HortonWork公司官网对这几种存储格式的比较分析：<br><img src="/images/HortonWork-hive-file-compare.png"><br>从图中很明显看到ORC存储格式和Parquet存储格式对文件的存储比Text格式小很多，也就是说压缩比大很多</p>
 <p>实际性能对比测试：<br><a href="https://blog.csdn.net/henrrywan/article/details/90719015" target="_blank" rel="noopener">实验来源</a></p>
 <p>我们从同一个源表新增数据到这六张测试表，为了体现存储数据的差异性，我们选取了一张数据量比较大的源表（源表数据量为30000000条）。<br>下面从存储空间和SQL查询两个方面进行比较。<br>其中SQL查询为包含group by的计量统计和不含group by的计量统计。</p>
 <figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sql01:<span class="keyword">select</span> count<span class="comment">(*) from test_table;</span></span><br><span class="line"><span class="comment">sql02:select id,count(*)</span> <span class="keyword">from</span> test_table <span class="keyword">group</span> <span class="keyword">by</span> id;</span><br></pre></td></tr></table></figure>
@@ -753,7 +785,273 @@
 </tbody>
 </table>
 </div>
-<h1 id="序列化与反序列化"><a href="#序列化与反序列化" class="headerlink" title="序列化与反序列化"></a>序列化与反序列化</h1><h1 id="存储后端"><a href="#存储后端" class="headerlink" title="存储后端"></a>存储后端</h1><h1 id="HQL"><a href="#HQL" class="headerlink" title="HQL"></a>HQL</h1><h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><h2 id="join"><a href="#join" class="headerlink" title="join"></a>join</h2><h2 id="排序"><a href="#排序" class="headerlink" title="排序"></a>排序</h2><h1 id="调优"><a href="#调优" class="headerlink" title="调优"></a>调优</h1>
+<h1 id="序列化与反序列化"><a href="#序列化与反序列化" class="headerlink" title="序列化与反序列化"></a>序列化与反序列化</h1><p><strong>作用</strong><br>官方解释：<a href="https://cwiki.apache.org/confluence/display/Hive/DeveloperGuide#DeveloperGuide-HiveSerDe" target="_blank" rel="noopener">Hive SerDe wiki </a></p>
+<ul>
+<li>SerDe is a short name for “Serializer and Deserializer.”</li>
+<li>Hive uses SerDe (and FileFormat) to read and write table rows.</li>
+<li>HDFS files —&gt; InputFileFormat —&gt; <key, value=""> —&gt; Deserializer —&gt; Row object</key,></li>
+<li>Row object —&gt; Serializer —&gt; <key, value=""> —&gt; OutputFileFormat —&gt; HDFS files</key,></li>
+</ul>
+<p><strong>注册机制</strong><br>使用”STORED AS”关键字替代{SerDe, InputFormat, and OutputFormat}语法</p>
+<p><img src="/images/hive-srede-replace.png"></p>
+<h1 id="存储后端"><a href="#存储后端" class="headerlink" title="存储后端"></a>存储后端</h1><p>通过HIVE存储处理器，不但可以让hive基于hbase实现，还可以支持cassandra JDBC MongoDB 以及 Google Spreadsheets </p>
+<p>HIVE存储器的实现原理基于HIVE以及Hadoop的可扩展性实现：</p>
+<ul>
+<li>输入格式化（input formats）</li>
+<li>输出格式化（output formats）</li>
+<li>序列化/反序列化包（serialization/deserialization librarises） </li>
+</ul>
+<p>除了依据以上可扩展性，存储处理器还需要实现新的元数据钩子接口，这个接口允许使用HIVE的DDL语句来定义和管理hive自己的元数据以及其它系统的目录（此目录个人理解为其它系统的元数据目录）</p>
+<p>一些术语：</p>
+<p>HIVE本身有的概念：</p>
+<ul>
+<li>被管理的表即内部表（managed）：元数据由hive管理，并且数据也存储在hive的体系里面</li>
+<li>外部表（external table）：表的定义被外部的元数据目录所管理，数据也存储在外部系统中</li>
+</ul>
+<p>hive存储处理器的概念：</p>
+<ul>
+<li>本地（native）表：hive不需要借助存储处理器就可以直接管理和访问的表</li>
+<li>非本地（non-native）表:需要通过存储处理器才能管理和访问的表</li>
+</ul>
+<p>内部表 外部表 和 本地表 非本地表 形成交叉，就有了下面四种形式的概念定义：</p>
+<ul>
+<li>managed native: what you get by default with CREATE TABLE</li>
+<li>external native: what you get with CREATE EXTERNAL TABLE when no STORED BY clause is specified</li>
+<li>managed non-native: what you get with CREATE TABLE when a STORED BY clause is specified; Hive stores the definition in its metastore, but does not create any files itself; instead, it calls the storage handler with a request to create a corresponding object structure</li>
+<li>external non-native: what you get with CREATE EXTERNAL TABLE when a STORED BY clause is specified; Hive registers the definition in its metastore and calls the storage handler to check that it matches the primary definition in the other system</li>
+</ul>
+<h1 id="HQL"><a href="#HQL" class="headerlink" title="HQL"></a>HQL</h1><h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><h3 id="Join的实现原理"><a href="#Join的实现原理" class="headerlink" title="Join的实现原理"></a>Join的实现原理</h3><p>select u.name, o.orderid from order o join user u on o.uid = u.uid;</p>
+<p>在map的输出value中为不同表的数据打上tag标记，在reduce阶段根据tag判断数据来源。MapReduce的过程如下（这里只是说明最基本的Join的实现，还有其他的实现方式）</p>
+<p><img src="/images/hql-join.png"></p>
+<h3 id="Group-By的实现原理"><a href="#Group-By的实现原理" class="headerlink" title="Group By的实现原理"></a>Group By的实现原理</h3><p>select rank, isonline, count(*) from city group by rank, isonline;</p>
+<p>将GroupBy的字段组合为map的输出key值，利用MapReduce的排序，在reduce阶段保存LastKey区分不同的key。MapReduce的过程如下（当然这里只是说明Reduce端的非Hash聚合过程）</p>
+<p><img src="/images/hql-groupby.png"></p>
+<h3 id="Distinct的实现原理"><a href="#Distinct的实现原理" class="headerlink" title="Distinct的实现原理"></a>Distinct的实现原理</h3><p>select dealid, count(distinct uid) num from order group by dealid;</p>
+<p>当只有一个distinct字段时，如果不考虑Map阶段的Hash GroupBy，只需要将GroupBy字段和Distinct字段组合为map输出key，利用mapreduce的排序，同时将GroupBy字段作 为reduce的key，在reduce阶段保存LastKey即可完成去重</p>
+<p><img src="/images/hql-distinct.png"></p>
+<p>如果有多个distinct字段呢，如下面的SQL</p>
+<p>select dealid, count(distinct uid), count(distinct date) from order group by dealid;</p>
+<p>实现方式有两种：</p>
+<p>（1）如果仍然按照上面一个distinct字段的方法，即下图这种实现方式，无法跟据uid和date分别排序，也就无法通过LastKey去重，仍然需要在reduce阶段在内存中通过Hash去重</p>
+<p><img src="/images/multi-distinct1.png"></p>
+<p>2）第二种实现方式，可以对所有的distinct字段编号，每行数据生成n行数据，那么相同字段就会分别排序，这时只需要在reduce阶段记录LastKey即可去重。</p>
+<p>这种实现方式很好的利用了MapReduce的排序，节省了reduce阶段去重的内存消耗，但是缺点是增加了shuffle的数据量。</p>
+<p>需要注意的是，在生成reduce value时，除第一个distinct字段所在行需要保留value值，其余distinct数据行value字段均可为空。</p>
+<p><img src="/images/multi-distinct2.png"></p>
+<h3 id="SQL转化为MapReduce的过程"><a href="#SQL转化为MapReduce的过程" class="headerlink" title="SQL转化为MapReduce的过程"></a>SQL转化为MapReduce的过程</h3><p>了解了MapReduce实现SQL基本操作之后，我们来看看Hive是如何将SQL转化为MapReduce任务的，整个编译过程分为六个阶段：</p>
+<ul>
+<li>Antlr定义SQL的语法规则，完成SQL词法，语法解析，将SQL转化为抽象语法树AST Tree</li>
+<li>遍历AST Tree，抽象出查询的基本组成单元QueryBlock</li>
+<li>遍历QueryBlock，翻译为执行操作树OperatorTree</li>
+<li>逻辑层优化器进行OperatorTree变换，合并不必要的ReduceSinkOperator，减少shuffle数据量</li>
+<li>遍历OperatorTree，翻译为MapReduce任务</li>
+<li>物理层优化器进行MapReduce任务的变换，生成最终的执行计划</li>
+</ul>
+<h2 id="join"><a href="#join" class="headerlink" title="join"></a>join</h2><h3 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h3><p>ive执行引擎会将HQL“翻译”成为map-reduce任务，如果多张表使用同一列做join则将被翻译成一个reduce，否则将被翻译成多个map-reduce任务。</p>
+<p>如：<br>hive执行引擎会将HQL“翻译”成为map-reduce任务，如果多张表使用同一列做join则将被翻译成一个reduce，否则将被翻译成多个map-reduce任务。</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT <span class="selector-tag">a</span><span class="selector-class">.val</span>, <span class="selector-tag">b</span><span class="selector-class">.val</span>, c<span class="selector-class">.val</span> FROM <span class="selector-tag">a</span> JOIN <span class="selector-tag">b</span> ON (<span class="selector-tag">a</span><span class="selector-class">.key</span> = <span class="selector-tag">b</span>.key1) JOIN c ON (c<span class="selector-class">.key</span> = <span class="selector-tag">b</span>.key1)</span><br></pre></td></tr></table></figure>
+<p>将被翻译成1个map-reduce任务</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT <span class="selector-tag">a</span><span class="selector-class">.val</span>, <span class="selector-tag">b</span><span class="selector-class">.val</span>, c<span class="selector-class">.val</span> FROM <span class="selector-tag">a</span> JOIN <span class="selector-tag">b</span> ON (<span class="selector-tag">a</span><span class="selector-class">.key</span> = <span class="selector-tag">b</span>.key1) JOIN c ON (c<span class="selector-class">.key</span> = <span class="selector-tag">b</span>.key2)</span><br></pre></td></tr></table></figure>
+<p>将被翻译成2个map-reduce任务<br>这个很好理解，一般来说（map side join除外），map过程负责分发数据，具体的join操作在reduce完成，因此，如果多表基于不同的列做join，则无法在一轮map-reduce任务中将所有相关数据shuffle到统一个reducer<br>对于多表join，hive会将前面的表缓存在reducer的内存中，然后后面的表会流式的进入reducer和reducer内存中其它的表做join.<br>为了防止数据量过大导致oom，将数据量最大的表放到最后，或者通过“STREAMTABLE”显示指定reducer流式读入的表</p>
+<h3 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h3><p>1、内关联（[inner] join）：只返回关联上的结果</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">select <span class="keyword">a</span>.id,<span class="keyword">a</span>.name,b.age <span class="built_in">from</span> rdb_a <span class="keyword">a</span> inner join rdb_b b <span class="keyword">on</span> <span class="title">a</span>.<span class="title">id</span>=<span class="title">b</span>.<span class="title">id</span>;</span><br><span class="line"> </span><br><span class="line">Total MapReduce CPU Time Spent: <span class="number">2</span> <span class="built_in">seconds</span> <span class="number">560</span> msec</span><br><span class="line">OK</span><br><span class="line"><span class="number">1</span>       lucy    <span class="number">12</span></span><br><span class="line"><span class="number">2</span>       jack    <span class="number">22</span></span><br><span class="line">Time taken: <span class="number">47.419</span> <span class="built_in">seconds</span>, Fetched: <span class="number">2</span> row(s)</span><br></pre></td></tr></table></figure>
+<p>2、左关联（left [outer] join）：以左表为主</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">select <span class="keyword">a</span>.id,<span class="keyword">a</span>.name,b.age <span class="built_in">from</span> rdb_a <span class="keyword">a</span> left join rdb_b b <span class="keyword">on</span> <span class="title">a</span>.<span class="title">id</span>=<span class="title">b</span>.<span class="title">id</span>;</span><br><span class="line"> </span><br><span class="line">Total MapReduce CPU Time Spent: <span class="number">1</span> <span class="built_in">seconds</span> <span class="number">240</span> msec</span><br><span class="line">OK</span><br><span class="line"><span class="number">1</span>       lucy    <span class="number">12</span></span><br><span class="line"><span class="number">2</span>       jack    <span class="number">22</span></span><br><span class="line"><span class="number">3</span>       tony    <span class="literal">NULL</span></span><br><span class="line">Time taken: <span class="number">33.42</span> <span class="built_in">seconds</span>, Fetched: <span class="number">3</span> row(s)</span><br></pre></td></tr></table></figure>
+<p>3、右关联（right [outer] join）：以右表为主</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">select <span class="keyword">a</span>.id,<span class="keyword">a</span>.name,b.age <span class="built_in">from</span> rdb_a <span class="keyword">a</span> <span class="literal">right</span> join rdb_b b <span class="keyword">on</span> <span class="title">a</span>.<span class="title">id</span>=<span class="title">b</span>.<span class="title">id</span>;</span><br><span class="line"> </span><br><span class="line">Total MapReduce CPU Time Spent: <span class="number">2</span> <span class="built_in">seconds</span> <span class="number">130</span> msec</span><br><span class="line">OK</span><br><span class="line"><span class="number">1</span>       lucy    <span class="number">12</span></span><br><span class="line"><span class="number">2</span>       jack    <span class="number">22</span></span><br><span class="line"><span class="literal">NULL</span>    <span class="literal">NULL</span>    <span class="number">32</span></span><br><span class="line">Time taken: <span class="number">32.7</span> <span class="built_in">seconds</span>, Fetched: <span class="number">3</span> row(s)</span><br></pre></td></tr></table></figure>
+<p>4、全关联（full [outer] join）：以两个表的记录为基准，返回两个表的记录去重之和，关联不上的字段为NULL。</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">select <span class="keyword">a</span>.id,<span class="keyword">a</span>.name,b.age <span class="built_in">from</span> rdb_a <span class="keyword">a</span> full join rdb_b b <span class="keyword">on</span> <span class="title">a</span>.<span class="title">id</span>=<span class="title">b</span>.<span class="title">id</span>;</span><br><span class="line"> </span><br><span class="line">Total MapReduce CPU Time Spent: <span class="number">5</span> <span class="built_in">seconds</span> <span class="number">540</span> msec</span><br><span class="line">OK</span><br><span class="line"><span class="number">1</span>       lucy    <span class="number">12</span></span><br><span class="line"><span class="number">2</span>       jack    <span class="number">22</span></span><br><span class="line"><span class="number">3</span>       tony    <span class="literal">NULL</span></span><br><span class="line"><span class="literal">NULL</span>    <span class="literal">NULL</span>    <span class="number">32</span></span><br><span class="line">Time taken: <span class="number">42.938</span> <span class="built_in">seconds</span>, Fetched: <span class="number">4</span> row(s)</span><br></pre></td></tr></table></figure>
+<p>5、left semi join：以LEFT SEMI JOIN关键字前面的表为主表，返回主表的KEY也在副表中的记录。</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">select a.<span class="built_in">id</span>,a.<span class="built_in">name</span> <span class="keyword">from</span> rdb_a a left semi join rdb_b b <span class="keyword">on</span> a.<span class="built_in">id</span>=b.<span class="built_in">id</span>;</span><br><span class="line"> </span><br><span class="line">Total MapReduce CPU Time Spent: <span class="number">3</span> seconds <span class="number">300</span> msec</span><br><span class="line">OK</span><br><span class="line"><span class="number">1</span>       lucy</span><br><span class="line"><span class="number">2</span>       jack</span><br><span class="line">Time taken: <span class="number">31.105</span> seconds, Fetched: <span class="number">2</span> row(s)</span><br><span class="line"> </span><br><span class="line">其实就相当于：select a.<span class="built_in">id</span>,a.<span class="built_in">name</span> <span class="keyword">from</span> rdb_a a <span class="keyword">where</span> a.<span class="built_in">id</span> <span class="keyword">in</span>(select b.<span class="built_in">id</span> <span class="keyword">from</span>  rdb_b b );</span><br></pre></td></tr></table></figure>
+<p>6、笛卡尔积关联（cross join）：返回两个表的笛卡尔积结果，不需要指定关联键</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">select a.id,a.name,<span class="keyword">b.age </span>from rdb_a a cross <span class="keyword">join </span>rdb_b <span class="keyword">b;</span></span><br><span class="line"><span class="keyword"> </span></span><br><span class="line">Total MapReduce CPU Time Spent: <span class="number">1</span> seconds <span class="number">260</span> msec</span><br><span class="line">OK</span><br><span class="line"><span class="number">1</span>       lucy    <span class="number">12</span></span><br><span class="line"><span class="number">1</span>       lucy    <span class="number">22</span></span><br><span class="line"><span class="number">1</span>       lucy    <span class="number">32</span></span><br><span class="line"><span class="number">2</span>       <span class="keyword">jack </span>   <span class="number">12</span></span><br><span class="line"><span class="number">2</span>       <span class="keyword">jack </span>   <span class="number">22</span></span><br><span class="line"><span class="number">2</span>       <span class="keyword">jack </span>   <span class="number">32</span></span><br><span class="line"><span class="number">3</span>       tony    <span class="number">12</span></span><br><span class="line"><span class="number">3</span>       tony    <span class="number">22</span></span><br><span class="line"><span class="number">3</span>       tony    <span class="number">32</span></span><br><span class="line">Time taken: <span class="number">24</span>.<span class="number">727</span> seconds, Fetched: <span class="number">9</span> row(s)</span><br></pre></td></tr></table></figure>
+<h3 id="实现原理-1"><a href="#实现原理-1" class="headerlink" title="实现原理"></a>实现原理</h3><p>统的说，Hive中的Join可分为Common Join（Reduce阶段完成join）和Map Join（Map阶段完成join）。本文简单介绍一下两种join的原理和机制。</p>
+<p><strong>Common Join</strong></p>
+<ul>
+<li><p>Map阶段</p>
+<p>  读取源表的数据，Map输出时候以Join on条件中的列为key，如果Join有多个关联键，则以这些关联键的组合作为key;<br>  Map输出的value为join之后所关心的(select或者where中需要用到的)列；同时在value中还会包含表的Tag信息，用于标明此value对应哪个表；<br>  按照key进行排序</p>
+</li>
+<li>Shuffle阶段<br>根据key的值进行hash,并将key/value按照hash值推送至不同的reduce中，这样确保两个表中相同的key位于同一个reduce中</li>
+<li>Reduce阶段<br>根据key的值完成join操作，期间通过Tag来识别不同表中的数据。</li>
+</ul>
+<p><img src="/images/common-join.jpeg"></p>
+<p><strong>Map Join</strong></p>
+<p>MapJoin通常用于一个很小的表和一个大表进行join的场景，具体小表有多小，由参数hive.mapjoin.smalltable.filesize来决定，该参数表示小表的总大小，默认值为25000000字节，即25M。<br>Hive0.7之前，需要使用hint提示 /+ mapjoin(table) /才会执行MapJoin,否则执行Common Join，但在0.7版本之后，默认自动会转换Map Join，由参数hive.auto.convert.join来控制，默认为true.<br>仍然以9.1中的HQL来说吧，假设a表为一张大表，b为小表，并且hive.auto.convert.join=true,那么Hive在执行时候会自动转化为MapJoin。</p>
+<p><img src="/images/map-join.jpeg"></p>
+<ul>
+<li>如图中的流程，首先是Task A，它是一个Local Task（在客户端本地执行的Task），负责扫描小表b的数据，将其转换成一个HashTable的数据结构，并写入本地的文件中，之后将该文件加载到DistributeCache中，该HashTable的数据结构可以抽象为：</li>
+<li>接下来是Task B，该任务是一个没有Reduce的MR，启动MapTasks扫描大表a,在Map阶段，根据a的每一条记录去和DistributeCache中b表对应的HashTable关联，并直接输出结果。</li>
+</ul>
+<p>由于MapJoin没有Reduce，所以由Map直接输出结果文件，有多少个Map Task，就有多少个结果文件。</p>
+<h3 id="Hive-在倾斜表的Join优化"><a href="#Hive-在倾斜表的Join优化" class="headerlink" title="Hive 在倾斜表的Join优化"></a>Hive 在倾斜表的Join优化</h3><p>Join的过程中，Map结束之后，会将相同的Key的数据shuffle到同一个Reduce中，如果数据分布均匀的话，每个Reduce处理的数据量大体上是比较均衡的，但是若明显存在数据倾斜的时候，会出现某些Reducer处理的数据量过大，从而使得该节点的处理时间过长，成为瓶颈。</p>
+<p>在已经知道数据的情况下，可以人为的进行语句的拆分。<br>如：表A与表B进行Join，在明知Id=1的数据明显的存在数据倾斜，可以将语句select A.id from A join B on A.id = B.id拆分为以下两条：</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">select A.<span class="built_in">id</span> <span class="keyword">from</span> A join B <span class="keyword">on</span> A.<span class="built_in">id</span> = B.<span class="built_in">id</span> <span class="keyword">where</span> A.<span class="built_in">id</span> &lt;&gt; <span class="number">1</span>;</span><br><span class="line">select A.<span class="built_in">id</span> <span class="keyword">from</span> A join B <span class="keyword">on</span> A.<span class="built_in">id</span> = B.<span class="built_in">id</span> <span class="keyword">where</span> A.<span class="built_in">id</span> = <span class="number">1</span> <span class="keyword">and</span> B.<span class="built_in">id</span> = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>优点：<ul>
+<li>针对只有少量的Key会产生数据倾斜的场景下非常的有用。</li>
+</ul>
+</li>
+<li>缺点：<ul>
+<li>表A和表B需要被读和处理两次。处理的结果也需要读和写两次。</li>
+<li>需要人为的去找出这些产生数据倾斜的Key,并手动拆分处理。</li>
+</ul>
+</li>
+</ul>
+<p>Hive优化的方法：<br>首先读取表B，并将key为1的行存储为HashTable,放入到分布式缓存中（为了使用MapJoin），然后运行一些Map任务去读表A，并按照以下流程进行处理：</p>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">If <span class="keyword">it</span> has key <span class="number">1</span>, <span class="keyword">then</span> use <span class="keyword">the</span> hashed <span class="built_in">version</span> <span class="keyword">of</span> B <span class="built_in">to</span> compute <span class="keyword">the</span> <span class="built_in">result</span>.</span><br><span class="line">For all other <span class="built_in">keys</span>, <span class="built_in">send</span> <span class="keyword">it</span> <span class="built_in">to</span> <span class="keyword">a</span> reducer which does <span class="keyword">the</span> join. This reducer will <span class="built_in">get</span> rows <span class="keyword">of</span> B also <span class="built_in">from</span> <span class="keyword">a</span> mapper.</span><br></pre></td></tr></table></figure>
+<p>这种方法可以避免读取B两次，表A中的倾斜Key会使用MapJoin方式进行处理。</p>
+<p>以上的这些假设是针对B有少量的行的key与表A中的倾斜Key相同，因此这些行可以加载进内存中。</p>
+<h2 id="排序"><a href="#排序" class="headerlink" title="排序"></a>排序</h2><p><strong>order by</strong></p>
+<p>order by会对输入做全局排序，因此只有一个Reducer(多个Reducer无法保证全局有序)，然而只有一个Reducer，会导致当输入规模较大时，消耗较长的计算时间。</p>
+<p><strong>sort by</strong></p>
+<p>sort by不是全局排序，其在数据进入reducer前完成排序，因此，如果用sort by进行排序，并且设置mapred.reduce.tasks&gt;1，则sort by只会保证每个reducer的输出有序，并不保证全局有序。sort by不同于order by，它不受hive.mapred.mode属性的影响，sort by的数据只能保证在同一个reduce中的数据可以按指定字段排序。使用sort by你可以指定执行的reduce个数(通过set mapred.reduce.tasks=n来指定)，对输出的数据再执行归并排序，即可得到全部结果。</p>
+<p><strong>distribute by</strong></p>
+<p>distribute by是控制在map端如何拆分数据给reduce端的。hive会根据distribute by后面列，对应reduce的个数进行分发，默认是采用hash算法。sort by为每个reduce产生一个排序文件。在有些情况下，你需要控制某个特定行应该到哪个reducer，这通常是为了进行后续的聚集操作。distribute by刚好可以做这件事。因此，distribute by经常和sort by配合使用。</p>
+<p>注：Distribute by和sort by的使用场景</p>
+<ul>
+<li>Map输出的文件大小不均。</li>
+<li>Reduce输出文件大小不均。</li>
+<li>.小文件过多。</li>
+<li>文件超大。</li>
+</ul>
+<p><strong>cluster by</strong></p>
+<p>cluster by除了具有distribute by的功能外还兼具sort by的功能。但是排序只能是倒叙排序，不能指定排序规则为ASC或者DESC。</p>
+<h1 id="调优"><a href="#调优" class="headerlink" title="调优"></a>调优</h1><p>hive调优是比较大的专题，需要结合实际的业务，数据的类型，分布，质量状况等来实际的考虑如何进行系统性的优化，hive底层是mapreduce，所以hadoop调优也是hive调优的一个基础,hvie调优可以分为几个模块进行考虑，数据的压缩与存储，sql的优化，hive参数的优化，解决数据的倾斜等。</p>
+<h2 id="数据的压缩与存储格式"><a href="#数据的压缩与存储格式" class="headerlink" title="数据的压缩与存储格式"></a>数据的压缩与存储格式</h2><p> 压缩可以节约磁盘的空间，基于文本的压缩率可达40%+; 压缩可以增加吞吐量和性能量(减小载入内存的数据量)，但是在压缩和解压过程中会增加CPU的开销。所以针对IO密集型的jobs(非计算密集型)可以使用压缩的方式提高性能。</p>
+<p> 选择压缩算法的时候需要考虑到是否可以分割，如果不支持分割（切片的时候需要确定一条数据的完整性），则一个map需要执行完一个文件，如果文件很大，则效率很低。一般情况下hdfs一个块（128M）就是一个map的输入切片，而block是按物理切割的，可能一条数据会被切到两个块中去，而mapde 切片如何确保一条数据在一个切片中呢？这就是看压缩算法支不支持分割了，具体的实现机制需要看源码研究。</p>
+<p>可以使用列裁剪，分区裁剪，orc，parquet等这些列式存储格式，因为列式存储的表，每一列的数据在物理上是存储在一起的，Hive查询时会只遍历需要列数据，大大减少处理的数据量。</p>
+<p>Hive支持ORCfile，这是一种新的表格存储格式，通过诸如谓词下推，压缩等技术来提高执行速度提升。对于每个HIVE表使用ORCfile应该是一件容易的事情，并且对于获得HIVE查询的快速响应时间非常有益。
+　　</p>
+<h2 id="hive参数优化"><a href="#hive参数优化" class="headerlink" title="hive参数优化"></a>hive参数优化</h2><p>1、fetch task 为执行hive时，不用执行MapReduce，如select * from emp；<br>2、并行执行</p>
+<pre><code><figure class="highlight sqf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 开启任务并行执行</span></span><br><span class="line"> <span class="built_in">set</span> hive.<span class="built_in">exec</span>.parallel=<span class="literal">true</span>;</span><br><span class="line"> <span class="comment">// 同一个sql允许并行任务的最大线程数 </span></span><br><span class="line"><span class="built_in">set</span> hive.<span class="built_in">exec</span>.parallel.thread.number=<span class="number">8</span>;</span><br></pre></td></tr></table></figure>
+</code></pre><p>3、jvm 重用<br> JVM重用对hive的性能具有非常大的 影响，特别是对于很难避免小文件的场景或者task特别多的场景，这类场景大多数执行时间都很短。jvm的启动过程可能会造成相当大的开销，尤其是执行的job包含有成千上万个task任务的情况。</p>
+<figure class="highlight routeros"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="builtin-name">set</span> mapred.job.reuse.jvm.num.<span class="attribute">tasks</span>=10;</span><br></pre></td></tr></table></figure>
+<p>JVM的一个缺点是，开启JVM重用将会一直占用使用到的task插槽，以便进行重用，直到任务完成后才能释放。如果某个“不平衡“的job中有几个 reduce task 执行的时间要比其他reduce task消耗的时间多得多的话，那么保留的插槽就会一直空闲着却无法被其他的job使用，直到所有的task都结束了才会释放。</p>
+<p>4、设置reduce的数目<br>reduce个数的设定极大影响任务执行效率，不指定reduce个数的情况下，Hive会猜测确定一个reduce个数，基于以下两个设定： hive.exec.reducers.bytes.per.reducer（每个reduce任务处理的数据量，在Hive 0.14.0版本之前默认值是1G(1,000,000,000)；而从Hive 0.14.0开始，默认值变成了256M(256,000,000) ） hive.exec.reducers.max（每个任务最大的reduce数，在Hive 0.14.0版本之前默认值是999；而从Hive 0.14.0开始，默认值变成了1009 ） 计算reducer数的公式很简单N=min(参数2，总输入数据量/参数1) 即，如果reduce的输入（map的输出）总大小不超过1G,那么只会有一个reduce任务；</p>
+<p>  reduce个数并不是越多越好； 同map一样，启动和初始化reduce也会消耗时间和资源； 另外，有多少个reduce,就会有多少个输出文件，如果生成了很多个小文件，那么如果这些小文件作为下一个任务的输入，则也会出现小文件过多的问题 -</p>
+<p>5、推测执行<br>所谓的推测执行，就是当所有task都开始运行之后，Job Tracker会统计所有任务的平均进度，如果某个task所在的task node机器配置比较低或者CPU load很高（原因很多），导致任务执行比总体任务的平均执行要慢，此时Job Tracker会启动一个新的任务（duplicate task），原有任务和新任务哪个先执行完就把另外一个kill掉</p>
+<h2 id="数据倾斜"><a href="#数据倾斜" class="headerlink" title="数据倾斜"></a>数据倾斜</h2><p>表现：任务进度长时间维持在99%（或100%），查看任务监控页面，发现只有少量（1个或几个）reduce子任务未完成。因为其处理的数据量和其他reduce差异过大。</p>
+<p>原因：某个reduce的数据输入量远远大于其他reduce数据的输入量</p>
+<ul>
+<li>key分布不均匀</li>
+<li>业务数据本身的特性</li>
+<li>建表时考虑不周</li>
+<li>某些SQL语句本身就有数据倾斜</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">关键词</th>
+<th style="text-align:center">情形</th>
+<th style="text-align:center">后果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">join</td>
+<td style="text-align:center">其中一个表较小，但是key集中</td>
+<td style="text-align:center">分发到某一个或几个Reduce上的数据远高于平均值</td>
+</tr>
+<tr>
+<td style="text-align:center">join</td>
+<td style="text-align:center">大表与大表，但是分桶的判断字段0值或空值过多</td>
+<td style="text-align:center">这些空值都由一个reduce处理，非常慢</td>
+</tr>
+<tr>
+<td style="text-align:center">group by</td>
+<td style="text-align:center">group by 维度过小，某值的数量过多</td>
+<td style="text-align:center">处理某值的reduce非常耗时</td>
+</tr>
+<tr>
+<td style="text-align:center">count distinct</td>
+<td style="text-align:center">某特殊值过多</td>
+<td style="text-align:center">处理此特殊值reduce耗时</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>解决方案：</p>
+<ul>
+<li><p>参数调节</p>
+  <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 开启Map端聚合参数设置</span></span><br><span class="line">set hive<span class="selector-class">.map</span><span class="selector-class">.aggr</span>=true</span><br><span class="line"><span class="comment">// 有数据倾斜的时候进行负载均衡</span></span><br><span class="line">set hive<span class="selector-class">.groupby</span><span class="selector-class">.skewindata</span> = true</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>熟悉数据的分布，优化sql的逻辑，找出数据倾斜的原因</p>
+</li>
+</ul>
+<h2 id="小文件合并优化"><a href="#小文件合并优化" class="headerlink" title="小文件合并优化"></a>小文件合并优化</h2><p>小文件是如何产生的：</p>
+<ul>
+<li>动态分区插入数据，产生大量的小文件，从而导致map数量剧增；</li>
+<li>reduce数量越多，小文件也越多（reduce的个数和输出文件是对应的）；</li>
+<li>数据源本身就包含大量的小文件。</li>
+</ul>
+<p>小文件问题的影响：</p>
+<ul>
+<li>从Hive的角度看，小文件会开很多map，一个map开一个JVM去执行，所以这些任务的初始化，启动，执行会浪费大量的资源，严重影响性能。</li>
+<li>在HDFS中，每个小文件对象约占150byte，如果小文件过多会占用大量内存。这样NameNode内存容量严重制约了集群的扩展。</li>
+</ul>
+<p>小文件问题的解决方案：</p>
+<p>从小文件产生的途径就可以从源头上控制小文件数量，方法如下：</p>
+<ul>
+<li>使用Sequencefile作为表存储格式，不要用textfile，在一定程度上可以减少小文件；</li>
+<li>减少reduce的数量（可以使用参数进行控制）；</li>
+<li>少用动态分区，用时记得按distribute by分区；</li>
+<li>选择合理的分区字段</li>
+</ul>
+<p>对于已有的小文件，我们可以通过以下几种方案解决：</p>
+<ul>
+<li>使用hadoop archive命令把小文件进行归档；</li>
+<li>重建表，建表时减少reduce数量；</li>
+<li>合并map、reduce输出的文件</li>
+<li>控制map端split文件的大小</li>
+</ul>
+<h2 id="SQL优化"><a href="#SQL优化" class="headerlink" title="SQL优化"></a>SQL优化</h2><p>1、列裁剪<br>Hive在读数据的时候，可以只读取查询中所需要用到的列，而忽略其他列</p>
+<p>2、分区裁剪<br>可以在查询的过程中减少不必要的分区</p>
+<p>3、COUNT(DISTINCT)<br>计算uv的时候，经常会用到COUNT(DISTINCT)，但在数据比较倾斜的时候COUNT(DISTINCT)会比较慢。这时可以尝试用GROUP BY改写代码计算uv。数据量小的时候无所谓，数据量大的情况下，由于COUNT DISTINCT操作需要用一个Reduce Task来完成，这一个Reduce需要处理的数据量太大，就会导致整个Job很难完成，一般COUNT DISTINCT使用先GROUP BY再COUNT的方式替换。</p>
+<p>4、join操作</p>
+<ul>
+<li>空Key过滤</li>
+<li>开启MapJoin</li>
+<li><p>将条目少的表/子查询放在Join操作符的左边</p>
+<p>  原因是在Join操作的Reduce阶段，位于Join操作符左边的表的内容会被加载进内存，将条目少的表放在左边，可以有效减少发生OOM错误的几率；再进一步，可以使用Group让小的维度表（1000条以下的记录条数）先进内存。在map端完成reduce。</p>
+</li>
+</ul>
+<p>5、GROUP BY操作<br>默认情况下，Map阶段同一Key数据分发给一个reduce，当一个key数据过大时就倾斜了</p>
+<p>Map端部分聚合：</p>
+<p>事实上并不是所有的聚合操作都需要在reduce部分进行，很多聚合操作都可以先在Map端进行部分聚合，然后reduce端得出最终结果。</p>
+<ul>
+<li><p>开启Map端聚合参数设置</p>
+<p>  set hive.map.aggr=true</p>
+</li>
+<li><p>在Map端进行聚合操作的条目数目</p>
+<p>  set hive.grouby.mapaggr.checkinterval=100000</p>
+</li>
+</ul>
+<p>有数据倾斜时进行负载均衡：</p>
+<p>　　此处需要设定hive.groupby.skewindata，当选项设定为true时，生成的查询计划有两个MapReduce任务。在第一个MapReduce中，map的输出结果集合会随机分布到reduce中，每个reduce做部分聚合操作，并输出结果。这样处理的结果是，相同的Group By Key有可能分发到不同的reduce中，从而达到负载均衡的目的；第二个MapReduce任务再根据预处理的数据结果按照Group By Key分布到reduce中（这个过程可以保证相同的Group By Key分布到同一个reduce中），最后完成最终的聚合操作。</p>
+<p>6、排序选择</p>
+<ul>
+<li>cluster by: 对同一字段分桶并排序，不能和sort by连用；</li>
+<li>distribute by + sort by: 分桶，保证同一字段值只存在一个结果文件当中，结合sort by 保证每个reduceTask结果有序；</li>
+<li>sort by: 单机排序，单个reduce结果有序</li>
+<li>order by：全局排序，缺陷是只能使用一个reduce</li>
+</ul>
+<p>6、自定义UDAF函数优化</p>
+<p>sum，count，max，min等UDAF，不怕数据倾斜问题，hadoop在map端汇总合并优化，使数据倾斜不成问题。</p>
+<h2 id="分表、分区、分桶"><a href="#分表、分区、分桶" class="headerlink" title="分表、分区、分桶"></a>分表、分区、分桶</h2><ul>
+<li><p>分区</p>
+<p>  分区表相当于hive的索引，加快查询速度</p>
+</li>
+<li>分桶<ul>
+<li>获得更高的查询处理效率。桶为表加上了额外的结构，Hive 在处理有些查询时能利用这个结构。具体而言，连接两个在（包含连接列的）相同列上划分了桶的表，可以使用 Map 端连接 （Map-side join）高效的实现。比如JOIN操作。对于JOIN操作两个表有一个相同的列，如果对这两个表都进行了桶操作。那么将保存相同列值的桶进行JOIN操作就可以，可以大大较少JOIN的数据量。</li>
+<li>使取样（sampling）更高效。在处理大规模数据集时，在开发和修改查询的阶段，如果能在数据集的一小部分数据上试运行查询，会带来很多方便。</li>
+</ul>
+</li>
+<li><p>分表</p>
+<p>  当你需要对一个很大的表做分析的时候，但不是每个字段都需要用到，可以考虑拆分表，生成子表，减少输入的数据量。并且过滤掉无效的数据，或者合并数据，进一步减少分析的数据量</p>
+</li>
+</ul>
+
       
     </div>
     
@@ -982,7 +1280,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么使用Hive"><span class="nav-number">1.1.</span> <span class="nav-text">为什么使用Hive</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#现状"><span class="nav-number">1.1.1.</span> <span class="nav-text">现状</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hive的特点"><span class="nav-number">1.1.2.</span> <span class="nav-text">Hive的特点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#架构"><span class="nav-number">1.2.</span> <span class="nav-text">架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#读时模式"><span class="nav-number">1.3.</span> <span class="nav-text">读时模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义"><span class="nav-number">1.3.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#两种模式对比"><span class="nav-number">1.3.2.</span> <span class="nav-text">两种模式对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.3.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据模型"><span class="nav-number">2.</span> <span class="nav-text">数据模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#表类型"><span class="nav-number">2.1.</span> <span class="nav-text">表类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#内表与外表"><span class="nav-number">2.1.1.</span> <span class="nav-text">内表与外表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#视图"><span class="nav-number">2.1.2.</span> <span class="nav-text">视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#索引"><span class="nav-number">2.1.3.</span> <span class="nav-text">索引</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分区与分桶"><span class="nav-number">2.2.</span> <span class="nav-text">分区与分桶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分区"><span class="nav-number">2.2.1.</span> <span class="nav-text">分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分桶"><span class="nav-number">2.2.2.</span> <span class="nav-text">分桶</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#文件存储格式"><span class="nav-number">3.</span> <span class="nav-text">文件存储格式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#textfile"><span class="nav-number">3.1.</span> <span class="nav-text">textfile</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sequence"><span class="nav-number">3.2.</span> <span class="nav-text">Sequence</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ORCFile"><span class="nav-number">3.3.</span> <span class="nav-text">ORCFile</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#概述历史"><span class="nav-number">3.3.1.</span> <span class="nav-text">概述历史</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#列式存储"><span class="nav-number">3.3.2.</span> <span class="nav-text">列式存储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#读写优化"><span class="nav-number">3.3.3.</span> <span class="nav-text">读写优化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Parquet"><span class="nav-number">3.4.</span> <span class="nav-text">Parquet</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据模型-1"><span class="nav-number">3.4.1.</span> <span class="nav-text">数据模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Striping-Assembly算法"><span class="nav-number">3.4.2.</span> <span class="nav-text">Striping/Assembly算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Repetition-Levels"><span class="nav-number">3.4.2.1.</span> <span class="nav-text">Repetition Levels</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Definition-Levels"><span class="nav-number">3.4.2.2.</span> <span class="nav-text">Definition Levels</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#一个完整的例子"><span class="nav-number">3.4.2.3.</span> <span class="nav-text">一个完整的例子</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Parquet文件格式"><span class="nav-number">3.4.2.4.</span> <span class="nav-text">Parquet文件格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#计算时间优化"><span class="nav-number">3.4.2.5.</span> <span class="nav-text">计算时间优化</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AVRO"><span class="nav-number">3.4.3.</span> <span class="nav-text">AVRO</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#压缩"><span class="nav-number">3.5.</span> <span class="nav-text">压缩</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#性能比较"><span class="nav-number">3.6.</span> <span class="nav-text">性能比较</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#序列化与反序列化"><span class="nav-number">4.</span> <span class="nav-text">序列化与反序列化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#存储后端"><span class="nav-number">5.</span> <span class="nav-text">存储后端</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HQL"><span class="nav-number">6.</span> <span class="nav-text">HQL</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实现原理"><span class="nav-number">6.1.</span> <span class="nav-text">实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#join"><span class="nav-number">6.2.</span> <span class="nav-text">join</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#排序"><span class="nav-number">6.3.</span> <span class="nav-text">排序</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#调优"><span class="nav-number">7.</span> <span class="nav-text">调优</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#介绍"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么使用Hive"><span class="nav-number">1.1.</span> <span class="nav-text">为什么使用Hive</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#现状"><span class="nav-number">1.1.1.</span> <span class="nav-text">现状</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hive的特点"><span class="nav-number">1.1.2.</span> <span class="nav-text">Hive的特点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#架构"><span class="nav-number">1.2.</span> <span class="nav-text">架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#读时模式"><span class="nav-number">1.3.</span> <span class="nav-text">读时模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义"><span class="nav-number">1.3.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#两种模式对比"><span class="nav-number">1.3.2.</span> <span class="nav-text">两种模式对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">1.3.3.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据模型"><span class="nav-number">2.</span> <span class="nav-text">数据模型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#表类型"><span class="nav-number">2.1.</span> <span class="nav-text">表类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#内表与外表"><span class="nav-number">2.1.1.</span> <span class="nav-text">内表与外表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#视图"><span class="nav-number">2.1.2.</span> <span class="nav-text">视图</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#索引"><span class="nav-number">2.1.3.</span> <span class="nav-text">索引</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分区与分桶"><span class="nav-number">2.2.</span> <span class="nav-text">分区与分桶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分区"><span class="nav-number">2.2.1.</span> <span class="nav-text">分区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分桶"><span class="nav-number">2.2.2.</span> <span class="nav-text">分桶</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#文件存储格式"><span class="nav-number">3.</span> <span class="nav-text">文件存储格式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#textfile"><span class="nav-number">3.1.</span> <span class="nav-text">textfile</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Sequence"><span class="nav-number">3.2.</span> <span class="nav-text">Sequence</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ORCFile"><span class="nav-number">3.3.</span> <span class="nav-text">ORCFile</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#概述历史"><span class="nav-number">3.3.1.</span> <span class="nav-text">概述历史</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#列式存储"><span class="nav-number">3.3.2.</span> <span class="nav-text">列式存储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#读写优化"><span class="nav-number">3.3.3.</span> <span class="nav-text">读写优化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Parquet"><span class="nav-number">3.4.</span> <span class="nav-text">Parquet</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据模型-1"><span class="nav-number">3.4.1.</span> <span class="nav-text">数据模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Striping-Assembly算法"><span class="nav-number">3.4.2.</span> <span class="nav-text">Striping/Assembly算法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Repetition-Levels"><span class="nav-number">3.4.2.1.</span> <span class="nav-text">Repetition Levels</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Definition-Levels"><span class="nav-number">3.4.2.2.</span> <span class="nav-text">Definition Levels</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#一个完整的例子"><span class="nav-number">3.4.2.3.</span> <span class="nav-text">一个完整的例子</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Parquet文件格式"><span class="nav-number">3.4.2.4.</span> <span class="nav-text">Parquet文件格式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#计算时间优化"><span class="nav-number">3.4.2.5.</span> <span class="nav-text">计算时间优化</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AVRO"><span class="nav-number">3.4.3.</span> <span class="nav-text">AVRO</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#压缩"><span class="nav-number">3.5.</span> <span class="nav-text">压缩</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#性能比较"><span class="nav-number">3.6.</span> <span class="nav-text">性能比较</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#序列化与反序列化"><span class="nav-number">4.</span> <span class="nav-text">序列化与反序列化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#存储后端"><span class="nav-number">5.</span> <span class="nav-text">存储后端</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HQL"><span class="nav-number">6.</span> <span class="nav-text">HQL</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#实现原理"><span class="nav-number">6.1.</span> <span class="nav-text">实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Join的实现原理"><span class="nav-number">6.1.1.</span> <span class="nav-text">Join的实现原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Group-By的实现原理"><span class="nav-number">6.1.2.</span> <span class="nav-text">Group By的实现原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Distinct的实现原理"><span class="nav-number">6.1.3.</span> <span class="nav-text">Distinct的实现原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SQL转化为MapReduce的过程"><span class="nav-number">6.1.4.</span> <span class="nav-text">SQL转化为MapReduce的过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#join"><span class="nav-number">6.2.</span> <span class="nav-text">join</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#介绍-1"><span class="nav-number">6.2.1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基本使用"><span class="nav-number">6.2.2.</span> <span class="nav-text">基本使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现原理-1"><span class="nav-number">6.2.3.</span> <span class="nav-text">实现原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hive-在倾斜表的Join优化"><span class="nav-number">6.2.4.</span> <span class="nav-text">Hive 在倾斜表的Join优化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#排序"><span class="nav-number">6.3.</span> <span class="nav-text">排序</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#调优"><span class="nav-number">7.</span> <span class="nav-text">调优</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据的压缩与存储格式"><span class="nav-number">7.1.</span> <span class="nav-text">数据的压缩与存储格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hive参数优化"><span class="nav-number">7.2.</span> <span class="nav-text">hive参数优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据倾斜"><span class="nav-number">7.3.</span> <span class="nav-text">数据倾斜</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小文件合并优化"><span class="nav-number">7.4.</span> <span class="nav-text">小文件合并优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SQL优化"><span class="nav-number">7.5.</span> <span class="nav-text">SQL优化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分表、分区、分桶"><span class="nav-number">7.6.</span> <span class="nav-text">分表、分区、分桶</span></a></li></ol></li></ol></div>
             
 
           </div>
@@ -1016,7 +1314,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">95.2k</span>
+    <span title="Site words total count">101.9k</span>
   
 </div>
 
