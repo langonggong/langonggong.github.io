@@ -89,10 +89,12 @@
 <meta property="og:site_name" content="武汉旭神">
 <meta property="og:description" content="选择任意一点，将元素划分为小于该值和大于该值的左右两部分，递归次过程">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-22T16:40:36.964Z">
+<meta property="og:image" content="http://langonggong.com/images/quick-sort.gif">
+<meta property="og:updated_time" content="2021-03-02T16:33:14.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="快速排序">
 <meta name="twitter:description" content="选择任意一点，将元素划分为小于该值和大于该值的左右两部分，递归次过程">
+<meta name="twitter:image" content="http://langonggong.com/images/quick-sort.gif">
 
 
 
@@ -364,7 +366,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  294
+                  516
                 </span>
               
 
@@ -380,7 +382,7 @@
                   <span class="post-meta-item-text">Reading time &asymp;</span>
                 
                 <span title="Reading time">
-                  1
+                  2
                 </span>
               
             </div>
@@ -405,7 +407,18 @@
       
 
       
-        <p>选择任意一点，将元素划分为小于该值和大于该值的左右两部分，递归次过程</p>
+        <p>快速排序的基本思想：通过一趟排序将待排记录分隔成独立的两部分，其中一部分记录的关键字均比另一部分的关键字小，则可分别对这两部分记录继续进行排序，以达到整个序列有序。</p>
+<p>时间复杂度：\(O (nlog_2 n)\)</p>
+<p><strong>算法描述</strong></p>
+<p>快速排序使用分治法来把一个串（list）分为两个子串（sub-lists）。具体算法描述如下：</p>
+<ul>
+<li>从数列中挑出一个元素，称为 “基准”（pivot）；</li>
+<li>重新排序数列，所有元素比基准值小的摆放在基准前面，所有元素比基准值大的摆在基准的后面（相同的数可以到任一边）。在这个分区退出之后，该基准就处于数列的中间位置。这个称为分区（partition）操作；</li>
+<li>递归地（recursive）把小于基准值元素的子数列和大于基准值元素的子数列排序。</li>
+</ul>
+<p><strong>动图展示</strong></p>
+<p><img src="/images/quick-sort.gif"></p>
+<p><strong>代码实现</strong></p>
 <figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">QuickSort</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> int[] <span class="built_in">quickSort</span>(int[] arr) &#123;</span><br><span class="line">    <span class="keyword">if</span> (arr == null || arr.length &lt; <span class="number">2</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> arr;</span><br><span class="line">    &#125;</span><br><span class="line">    process(arr, <span class="number">0</span>, arr.length - <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> arr;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> void process(int[] arr, int <span class="keyword">left</span>, int <span class="keyword">right</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">left</span> &gt;= <span class="keyword">right</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    int random = <span class="keyword">left</span> + (int) <span class="type">Math</span>.random() * (<span class="keyword">right</span> - <span class="keyword">left</span> + <span class="number">1</span>);</span><br><span class="line">    <span class="built_in">swap</span>(arr, random, <span class="keyword">right</span>);</span><br><span class="line">    int <span class="built_in">partition</span> = <span class="built_in">partition</span>(arr, <span class="keyword">left</span>, <span class="keyword">right</span>);</span><br><span class="line">    process(arr, <span class="keyword">left</span>, <span class="built_in">partition</span> - <span class="number">1</span>);</span><br><span class="line">    process(arr, <span class="built_in">partition</span> + <span class="number">1</span>, <span class="keyword">right</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 将小于或等于right的元素替换到左边，大于right的元素保持不动</span></span><br><span class="line"><span class="comment">   * partition加一递增，指向最近一个被替换到左边的位置</span></span><br><span class="line"><span class="comment">   * 当数组遍历完，right处的元素被替换到partition所指的位置</span></span><br><span class="line"><span class="comment">   * partition左边的值全部小于或等于该值，右边的值全部大于该值</span></span><br><span class="line"><span class="comment">   **/</span></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> int <span class="built_in">partition</span>(int[] arr, int <span class="keyword">left</span>, int <span class="keyword">right</span>) &#123;</span><br><span class="line">    int <span class="built_in">partition</span> = <span class="keyword">left</span> - <span class="number">1</span>;</span><br><span class="line">    int index = <span class="keyword">left</span>;</span><br><span class="line">    <span class="keyword">while</span> (index &lt;= <span class="keyword">right</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (arr[index] &lt;= arr[<span class="keyword">right</span>]) &#123;</span><br><span class="line">        <span class="built_in">swap</span>(arr, ++<span class="built_in">partition</span>, index);</span><br><span class="line">      &#125;</span><br><span class="line">      index++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">partition</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">static</span> void <span class="built_in">swap</span>(int[] arr, int index1, int index2) &#123;</span><br><span class="line">    <span class="keyword">if</span> (index1 == index2) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    int tmp = arr[index1];</span><br><span class="line">    arr[index1] = arr[index2];</span><br><span class="line">    arr[index2] = tmp;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
@@ -648,7 +661,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">101.9k</span>
+    <span title="Site words total count">103.5k</span>
   
 </div>
 

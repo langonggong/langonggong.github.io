@@ -89,10 +89,12 @@
 <meta property="og:site_name" content="武汉旭神">
 <meta property="og:description" content="选择最小值与第一个数字交换">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-22T16:40:36.967Z">
+<meta property="og:image" content="http://langonggong.com/images/selection-sort.gif">
+<meta property="og:updated_time" content="2021-02-25T14:51:09.582Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="选择排序">
 <meta name="twitter:description" content="选择最小值与第一个数字交换">
+<meta name="twitter:image" content="http://langonggong.com/images/selection-sort.gif">
 
 
 
@@ -364,7 +366,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  113
+                  428
                 </span>
               
 
@@ -380,7 +382,7 @@
                   <span class="post-meta-item-text">Reading time &asymp;</span>
                 
                 <span title="Reading time">
-                  1
+                  2
                 </span>
               
             </div>
@@ -405,7 +407,19 @@
       
 
       
-        <p>选择最小值与第一个数字交换</p>
+        <p>选择排序(Selection-sort)是一种简单直观的排序算法。它的工作原理：首先在未排序序列中找到最小（大）元素，存放到排序序列的起始位置，然后，再从剩余未排序元素中继续寻找最小（大）元素，然后放到已排序序列的末尾。以此类推，直到所有元素均排序完毕。 </p>
+<p>注：从后端的无序区选择最小的往后序区后面放，左端的有序区越来越长</p>
+<p><strong>算法描述</strong></p>
+<p>n个记录的直接选择排序可经过n-1趟直接选择排序得到有序结果。具体算法描述如下：</p>
+<ul>
+<li>初始状态：无序区为R[1..n]，有序区为空；</li>
+<li>第i趟排序(i=1,2,3…n-1)开始时，当前有序区和无序区分别为R[1..i-1]和R(i..n）。该趟排序从- 当前无序区中-选出关键字最小的记录 R[k]，将它与无序区的第1个记录R交换，使R[1..i]和R[i+1..n)分别变为记录个数增加1个的新有序区和记录个数减少1个的新无序区；</li>
+<li>n-1趟结束，数组有序化了。</li>
+</ul>
+<p>选择最小值与第一个数字交换</p>
+<p><strong>动图展示</strong></p>
+<p><img src="/images/selection-sort.gif"></p>
+<p><strong>代码实现</strong></p>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SelectSort</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">int</span>[] <span class="title">selectionSort</span>(<span class="params"><span class="keyword">int</span>[] arr</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (arr == <span class="literal">null</span> || arr.length &lt; <span class="number">2</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> arr;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length - <span class="number">1</span>; i++) &#123;</span><br><span class="line">      <span class="keyword">int</span> mini = i;</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; arr.length; j++) &#123;</span><br><span class="line">        mini = arr[j] &lt; arr[mini] ? j : mini;</span><br><span class="line">      &#125;</span><br><span class="line">      swap(arr, i, mini);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> arr;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">swap</span>(<span class="params"><span class="keyword">int</span>[] arr, <span class="keyword">int</span> i, <span class="keyword">int</span> j</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (i == j) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> tmp = arr[i];</span><br><span class="line">    arr[i] = arr[j];</span><br><span class="line">    arr[j] = tmp;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
@@ -648,7 +662,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">101.9k</span>
+    <span title="Site words total count">103.5k</span>
   
 </div>
 

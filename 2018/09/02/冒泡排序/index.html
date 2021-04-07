@@ -89,10 +89,12 @@
 <meta property="og:site_name" content="武汉旭神">
 <meta property="og:description" content="最大值上浮">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-22T16:40:36.962Z">
+<meta property="og:image" content="http://langonggong.com/images/bubble-sort.gif">
+<meta property="og:updated_time" content="2021-02-25T14:49:47.334Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="冒泡排序">
 <meta name="twitter:description" content="最大值上浮">
+<meta name="twitter:image" content="http://langonggong.com/images/bubble-sort.gif">
 
 
 
@@ -364,7 +366,7 @@
                   <span class="post-meta-item-text">Words count in article&#58;</span>
                 
                 <span title="Words count in article">
-                  92
+                  335
                 </span>
               
 
@@ -405,7 +407,18 @@
       
 
       
-        <p>最大值上浮</p>
+        <p>冒泡排序是一种简单的排序算法。它重复地走访过要排序的数列，一次比较两个元素，如果它们的顺序错误就把它们交换过来。走访数列的工作是重复地进行直到没有再需要交换，也就是说该数列已经排序完成。这个算法的名字由来是因为较大的元素会经由交换慢慢“浮”到数列的顶端。 </p>
+<p>注：大值从小网上浮，末端的有序区越来越长</p>
+<p><strong>算法描述</strong></p>
+<ul>
+<li>比较相邻的元素。如果第一个比第二个大，就交换它们两个；</li>
+<li>对每一对相邻元素作同样的工作，从开始第一对到结尾的最后一对，这样在最后的元素应该会是最大的数；</li>
+<li>针对所有的元素重复以上的步骤，除了最后一个；</li>
+<li>重复步骤1~3，直到排序完成。</li>
+</ul>
+<p><strong>动图展示</strong></p>
+<p><img src="/images/bubble-sort.gif"></p>
+<p><strong>代码实现</strong></p>
 <figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">BubbleSort</span> &#123;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">int</span>[] <span class="title">bubbleSort</span>(<span class="params"><span class="keyword">int</span>[] arr</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (arr == <span class="literal">null</span> || arr.length &lt; <span class="number">2</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> arr;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i=arr.length<span class="number">-1</span>;i&gt;<span class="number">0</span>;i--) &#123;</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">int</span> j=<span class="number">0</span>;j&lt;i;j++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (arr[j] &gt; arr[j + <span class="number">1</span>]) &#123;</span><br><span class="line">          swap(arr, j, j + <span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> arr;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">swap</span>(<span class="params"><span class="keyword">int</span>[] arr, <span class="keyword">int</span> i, <span class="keyword">int</span> j</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> tmp = arr[i];</span><br><span class="line">    arr[i] = arr[j];</span><br><span class="line">    arr[j] = tmp;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
@@ -648,7 +661,7 @@
     
       <span class="post-meta-item-text">Site words total count&#58;</span>
     
-    <span title="Site words total count">101.9k</span>
+    <span title="Site words total count">103.5k</span>
   
 </div>
 
