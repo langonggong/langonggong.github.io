@@ -183,7 +183,7 @@ Dynamic Partition (DP) columns 动态分区。
 
 ## Sequence
 
-SequenceFile是Hadoop API提供的一种二进制文件支持，以<key,value>的形式序列化到文件中，其具有使用方便、可分割、可压缩的特点。 SequenceFile支持三种压缩选择：NONE，RECORD，BLOCK。Record压缩率低，一般建议使用BLOCK压缩。
+SequenceFile是Hadoop API提供的一种二进制文件支持，以key,value的形式序列化到文件中，其具有使用方便、可分割、可压缩的特点。 SequenceFile支持三种压缩选择：NONE，RECORD，BLOCK。Record压缩率低，一般建议使用BLOCK压缩。
 
 ## ORCFile
 
