@@ -161,7 +161,7 @@ Group Coordinator是运行在Kafka集群中每一个Broker内的一个进程。�
 - Consumer Group配置信息，包括session timeout等
 - 组中每个Consumer的元数据。包括主机名，consumer id
 - 每个Group正在消费的topic partition的当前offsets
-- artition的ownership元数据，包括consumer消费的partitions映射关系
+- Partition的ownership元数据，包括consumer消费的partitions映射关系
 
 ## Offset存储模型
 由于一个partition只能固定的交给一个消费者组中的一个消费者消费，因此Kafka保存offset时并不直接为每个消费者保存，而是以groupid-topic-partition -> offset的方式保存。
